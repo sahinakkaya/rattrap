@@ -36,6 +36,8 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         except sql.OperationalError:
             ratslap_path = self.get_ratslap_path()
         self.ratslap = ratslap.Ratslap(ratslap_path)
+        for widget in self.buttons + self.radio_buttons + [self.button_apply]:
+            widget.setEnabled(True)
         self.set_current_mode()
 
     def get_ratslap_path(self):
