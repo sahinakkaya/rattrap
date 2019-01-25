@@ -1,5 +1,4 @@
 import subprocess
-import sys
 from collections import OrderedDict
 
 h = "h"
@@ -144,8 +143,3 @@ class Ratslap:
             if line.startswith(f"<{option}>"):
                 raw = line.split(":", 1)[1].strip().replace(" or", ",")
                 return raw.split(", ")
-
-
-if __name__ == '__main__':
-    r = Ratslap("/home/sahin/Downloads/ratslap/ratslap")
-    r.reset("all")
