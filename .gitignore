@@ -1,0 +1,8 @@
+settings.db
+settings_test.db
+test.py
+__pycache__
+test_area
+venv
+.idea
+
