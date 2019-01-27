@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Rattrap</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -30,7 +30,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radiobtn_mode1">
+            <widget class="QRadioButton" name="mode1">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -40,7 +40,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radiobtn_mode2">
+            <widget class="QRadioButton" name="mode2">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -50,7 +50,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QRadioButton" name="radiobtn_mode3">
+            <widget class="QRadioButton" name="mode3">
              <property name="enabled">
               <bool>false</bool>
              </property>

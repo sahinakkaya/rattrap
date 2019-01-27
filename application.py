@@ -13,30 +13,26 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
 
         self.resize(356, 456)
         self.move(QtWidgets.QApplication.desktop().screen().rect().center() - self.rect().center())
-        self.setWindowTitle("Rattrap")
 
         self.current_mode_name = None
 
-        self.radio_buttons = [i for i in [getattr(self, "radiobtn_mode" + i) for i in "123"]]
-        for radio_btn in self.radio_buttons:
-            radio_btn.clicked.connect(self.set_current_mode)
-        self.radiobtn_mode1.setChecked(True)
-
+        # Grouping similar items together.
+        self.radio_buttons = [getattr(self, "mode" + i) for i in "123"]
         self.combo_boxes = [self.color, self.rate]
-        for combo_box in self.combo_boxes:
-            combo_box.currentTextChanged.connect(self.combo_box_changed)
-
         self.unchangeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.dpi_shift]
-
         self.buttons = [self.right, self.middle, self.left]
         self.buttons.extend([getattr(self, "g" + str(i)) for i in range(4, 10)])
+
+        # Binding them to functions.
+        for radio_btn in self.radio_buttons:
+            radio_btn.clicked.connect(self.set_current_mode)
+        for combo_box in self.combo_boxes:
+            combo_box.currentTextChanged.connect(self.combo_box_changed)
         for button in self.buttons:
             button.clicked.connect(self.assign_shortcut)
-
         self.button_apply.clicked.connect(self.apply_changes)
 
-        self.shortcut_labels = [self.label_left, self.label_right, self.label_middle]
-        self.shortcut_labels.extend([getattr(self, "label_g" + str(i)) for i in range(4, 10)])
+        self.mode1.setChecked(True)
         self.conn = DBHelper("settings.db")
         self.show()
         try:
