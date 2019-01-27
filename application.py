@@ -14,21 +14,28 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+        self.resize(356, 456)
         self.setWindowTitle("Rattrap")
         self.current_mode_name = None
+
         self.radio_buttons = [i for i in [getattr(self, "radiobtn_mode" + i) for i in "123"]]
         for radio_btn in self.radio_buttons:
             radio_btn.clicked.connect(self.set_current_mode)
         self.radiobtn_mode1.setChecked(True)
-        self.buttons = [self.right, self.middle, self.left]
-        self.buttons.extend([getattr(self, "g" + str(i)) for i in range(4, 10)])
-        self.shortcut_labels = [self.label_left, self.label_right, self.label_middle]
-        self.shortcut_labels.extend([getattr(self, "label_g" + str(i)) for i in range(4, 10)])
-        for button in self.buttons:
-            button.clicked.connect(self.assign_shortcut)
+
         self.color.currentTextChanged.connect(self.color_changed)
 
+        self.not_changeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.rate] + [self.dpi_shift]
+        print(self.not_changeable_items)
+        self.buttons = [self.right, self.middle, self.left]
+        self.buttons.extend([getattr(self, "g" + str(i)) for i in range(4, 10)])
+        for button in self.buttons:
+            button.clicked.connect(self.assign_shortcut)
+
         self.button_apply.clicked.connect(self.apply_changes)
+
+        self.shortcut_labels = [self.label_left, self.label_right, self.label_middle]
+        self.shortcut_labels.extend([getattr(self, "label_g" + str(i)) for i in range(4, 10)])
         self.conn = DBHelper("settings.db")
         self.show()
         try:
@@ -52,9 +59,9 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         current_mode = self.get_mode(self.current_mode_name)
         self.color.setCurrentText(current_mode["color"].title())
         for key in current_mode:
-            for button in self.buttons:
-                if button.objectName() == key:
-                    button.setText(current_mode[key])
+            for item in self.buttons + self.not_changeable_items:
+                if item.objectName() == key:
+                    item.setText(current_mode[key])
 
     def color_changed(self, color):
         self.conn.update_value("profiles", "color", color.lower(), name=self.current_mode_name)
@@ -84,6 +91,10 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
             profile = self.ratslap.parse_mode(mode)
             self.conn.insert_values("profiles", **profile)
             return self.get_mode(mode)
+
+    def closeEvent(self, e):
+        self.conn.close()
+        super(RattrapWindow, self).closeEvent(e)
 
 
 class AssignShortcutWidget(QtWidgets.QDialog):
@@ -131,5 +142,5 @@ if __name__ == '__main__':
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    mainwindow = RattrapWindow()
+    main_window = RattrapWindow()
     sys.exit(app.exec_())

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>522</height>
+    <width>356</width>
+    <height>633</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,7 +35,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>1</string>
+              <string>F3</string>
              </property>
             </widget>
            </item>
@@ -45,7 +45,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>2</string>
+              <string>F4</string>
              </property>
             </widget>
            </item>
@@ -55,7 +55,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>3</string>
+              <string>F5</string>
              </property>
             </widget>
            </item>
@@ -112,6 +112,141 @@
                <string>Green</string>
               </property>
              </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <widget class="QLabel" name="label_rate">
+             <property name="text">
+              <string>Report Rate:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="rate">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>DPI Shift:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi_shift">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <item>
+            <widget class="QLabel" name="label_dpi1">
+             <property name="text">
+              <string>DPI #1:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi1">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_dpi2">
+             <property name="text">
+              <string>DPI #2:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi2">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_15">
+           <item>
+            <widget class="QLabel" name="label_dpi3">
+             <property name="text">
+              <string>DPI #3:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi3">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_dpi4">
+             <property name="text">
+              <string>DPI #4:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi4">
+             <property name="text">
+              <string>Not Defined</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -300,7 +435,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>398</width>
+     <width>356</width>
      <height>20</height>
     </rect>
    </property>
