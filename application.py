@@ -6,16 +6,15 @@ from db_helper import DBHelper, sql  # Change this later
 from ui_rattrap import Ui_Rattrap
 
 
-class WTFException(Exception):
-    pass
-
-
 class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
+
         self.resize(356, 456)
+        self.move(QtWidgets.QApplication.desktop().screen().rect().center() - self.rect().center())
         self.setWindowTitle("Rattrap")
+
         self.current_mode_name = None
 
         self.radio_buttons = [i for i in [getattr(self, "radiobtn_mode" + i) for i in "123"]]
@@ -23,10 +22,12 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
             radio_btn.clicked.connect(self.set_current_mode)
         self.radiobtn_mode1.setChecked(True)
 
-        self.color.currentTextChanged.connect(self.color_changed)
+        self.combo_boxes = [self.color, self.rate]
+        for combo_box in self.combo_boxes:
+            combo_box.currentTextChanged.connect(self.combo_box_changed)
 
-        self.not_changeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.rate] + [self.dpi_shift]
-        print(self.not_changeable_items)
+        self.unchangeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.dpi_shift]
+
         self.buttons = [self.right, self.middle, self.left]
         self.buttons.extend([getattr(self, "g" + str(i)) for i in range(4, 10)])
         for button in self.buttons:
@@ -57,14 +58,17 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def set_current_mode(self):
         self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5
         current_mode = self.get_mode(self.current_mode_name)
-        self.color.setCurrentText(current_mode["color"].title())
-        for key in current_mode:
-            for item in self.buttons + self.not_changeable_items:
-                if item.objectName() == key:
-                    item.setText(current_mode[key])
 
-    def color_changed(self, color):
-        self.conn.update_value("profiles", "color", color.lower(), name=self.current_mode_name)
+        for item in self.combo_boxes + self.unchangeable_items + self.buttons:
+            name = item.objectName()
+            try:
+                item.setText(current_mode[name])
+            except AttributeError:
+                item.setCurrentText(current_mode[name].title())
+
+    def combo_box_changed(self, value):
+        property_name = self.sender().objectName()
+        self.conn.update_value("profiles", property_name, value.lower(), name=self.current_mode_name)
 
     def assign_shortcut(self):
         button = self.sender()

@@ -114,10 +114,19 @@
              </item>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <spacer name="horizontalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
            <item>
             <widget class="QLabel" name="label_rate">
              <property name="text">
@@ -126,7 +135,42 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="rate">
+            <widget class="QComboBox" name="rate">
+             <item>
+              <property name="text">
+               <string>125</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>250</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>500</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>1000</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_16">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>DPI Shift:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="dpi_shift">
              <property name="text">
               <string>Not Defined</string>
              </property>
@@ -144,20 +188,6 @@
               </size>
              </property>
             </spacer>
-           </item>
-           <item>
-            <widget class="QLabel" name="label">
-             <property name="text">
-              <string>DPI Shift:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="dpi_shift">
-             <property name="text">
-              <string>Not Defined</string>
-             </property>
-            </widget>
            </item>
           </layout>
          </item>

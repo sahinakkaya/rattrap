@@ -11,10 +11,6 @@ r = "r"
 c = "c"
 
 
-class WTFException(Exception):
-    pass
-
-
 class PermissionDeniedError(Exception):
     pass
 
@@ -50,7 +46,7 @@ class Ratslap:
         else:
             output, error = map(lambda f: f.decode("utf-8").splitlines(), [process.stdout, process.stderr])
         if error:
-            raise WTFException(process.stderr)
+            raise Exception(process.stderr)
 
         for line in output:
             if line.startswith("-"):
@@ -71,7 +67,7 @@ class Ratslap:
                 err = process.stderr.decode("utf-8").split(": ", 1)[1]
                 raise PermissionDeniedError(err)
             except IndexError:
-                raise WTFException(process.stderr.decode("utf-8"))
+                raise Exception(process.stderr.decode("utf-8"))
 
         output = process.stdout.decode("utf-8")
         if pretty:
