@@ -47,6 +47,9 @@ class DBHelper:
     def commit(self):
         self.conn.commit()
 
+    def close(self):
+        self.conn.close()
+
 
 if __name__ == '__main__':
     db = DBHelper()
