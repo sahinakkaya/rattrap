@@ -1,0 +1,92 @@
+# -*- coding: utf-8 -*-
+
+# Form implementation generated from reading ui file 'command_editor.ui'
+#
+# Created by: PyQt5 UI code generator 5.9.2
+#
+# WARNING! All changes made in this file will be lost!
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+class Ui_CommandEditor(object):
+    def setupUi(self, CommandEditor):
+        CommandEditor.setObjectName("CommandEditor")
+        CommandEditor.resize(294, 144)
+        CommandEditor.setMinimumSize(QtCore.QSize(294, 144))
+        CommandEditor.setMaximumSize(QtCore.QSize(314, 239))
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(CommandEditor)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.label = QtWidgets.QLabel(CommandEditor)
+        self.label.setObjectName("label")
+        self.verticalLayout.addWidget(self.label)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.shortcut_field = QtWidgets.QLineEdit(CommandEditor)
+        self.shortcut_field.setStyleSheet("")
+        self.shortcut_field.setObjectName("shortcut_field")
+        self.horizontalLayout.addWidget(self.shortcut_field)
+        self.btn_clear = QtWidgets.QPushButton(CommandEditor)
+        self.btn_clear.setObjectName("btn_clear")
+        self.horizontalLayout.addWidget(self.btn_clear)
+        self.verticalLayout.addLayout(self.horizontalLayout)
+        self.buttons_specials_field = QtWidgets.QComboBox(CommandEditor)
+        self.buttons_specials_field.setMaximumSize(QtCore.QSize(300, 16777215))
+        self.buttons_specials_field.setStyleSheet("")
+        self.buttons_specials_field.setObjectName("buttons_specials_field")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.buttons_specials_field.addItem("")
+        self.verticalLayout.addWidget(self.buttons_specials_field)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.btn_ok = QtWidgets.QPushButton(CommandEditor)
+        self.btn_ok.setObjectName("btn_ok")
+        self.horizontalLayout_2.addWidget(self.btn_ok)
+        self.btn_cancel = QtWidgets.QPushButton(CommandEditor)
+        self.btn_cancel.setObjectName("btn_cancel")
+        self.horizontalLayout_2.addWidget(self.btn_cancel)
+        self.verticalLayout.addLayout(self.horizontalLayout_2)
+        self.verticalLayout_2.addLayout(self.verticalLayout)
+
+        self.retranslateUi(CommandEditor)
+        QtCore.QMetaObject.connectSlotsByName(CommandEditor)
+
+    def retranslateUi(self, CommandEditor):
+        _translate = QtCore.QCoreApplication.translate
+        CommandEditor.setWindowTitle(_translate("CommandEditor", "Command Editor"))
+        self.label.setText(_translate("CommandEditor", "Enter your keystroke including any modifiers:"))
+        self.btn_clear.setText(_translate("CommandEditor", "Clear"))
+        self.buttons_specials_field.setItemText(0, _translate("CommandEditor", "CurrentKey"))
+        self.buttons_specials_field.setItemText(1, _translate("CommandEditor", "Button1"))
+        self.buttons_specials_field.setItemText(2, _translate("CommandEditor", "Button2"))
+        self.buttons_specials_field.setItemText(3, _translate("CommandEditor", "Button3"))
+        self.buttons_specials_field.setItemText(4, _translate("CommandEditor", "Button6"))
+        self.buttons_specials_field.setItemText(5, _translate("CommandEditor", "Button7"))
+        self.buttons_specials_field.setItemText(6, _translate("CommandEditor", "Button8"))
+        self.buttons_specials_field.setItemText(7, _translate("CommandEditor", "Button9"))
+        self.buttons_specials_field.setItemText(8, _translate("CommandEditor", "Button10"))
+        self.buttons_specials_field.setItemText(9, _translate("CommandEditor", "Button11"))
+        self.buttons_specials_field.setItemText(10, _translate("CommandEditor", "DPIUp"))
+        self.buttons_specials_field.setItemText(11, _translate("CommandEditor", "DPIDown"))
+        self.buttons_specials_field.setItemText(12, _translate("CommandEditor", "DPICycle"))
+        self.buttons_specials_field.setItemText(13, _translate("CommandEditor", "ModeSwitch"))
+        self.buttons_specials_field.setItemText(14, _translate("CommandEditor", "DPIShift"))
+        self.buttons_specials_field.setItemText(15, _translate("CommandEditor", "DPIDefault"))
+        self.btn_ok.setText(_translate("CommandEditor", "OK"))
+        self.btn_cancel.setText(_translate("CommandEditor", "Cancel"))
+

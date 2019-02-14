@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets
-
 import ratslap
 import shortcut
 from db_helper import DBHelper, sql  # Change this later
 from ui_rattrap import Ui_Rattrap
+from ui_command_editor import Ui_CommandEditor
 
 
 class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
@@ -43,6 +43,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
         self.set_current_mode()
+        self.assign_shortcut()
 
     def get_ratslap_path(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select the path to the 'ratslap' program...")
@@ -68,10 +69,11 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
 
     def assign_shortcut(self):
         button = self.sender()
+        # widget = AssignShortcutWidget(button)
         widget = AssignShortcutWidget(button, self)
-        x, y = self.pos().x(), self.pos().y()
-        widget.move(x + 20, y + 10)
-        widget.resize(50, 50)
+        # x, y = self.pos().x(), self.pos().y()
+        # widget.move(x + 20, y + 10)
+        # widget.resize(50, 50)
 
     def apply_changes(self):
         for mode in ["f3", "f4", "f5"]:
@@ -97,49 +99,72 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         super(RattrapWindow, self).closeEvent(e)
 
 
-class AssignShortcutWidget(QtWidgets.QDialog):
+class AssignShortcutWidget(QtWidgets.QDialog, Ui_CommandEditor):
     def __init__(self, button, parent: RattrapWindow):
         super().__init__(parent)
-        self.layout = QtWidgets.QVBoxLayout()
-        self.button, self.parent = button, parent
-        btn_name = button.objectName().title()
-        current_shortcut = button.text()
-        label_info = QtWidgets.QLabel(f'{btn_name} mouse button is currently assigned to "{current_shortcut}"')
-        btn = QtWidgets.QPushButton("Capture Shortcut from Keyboard")
-        btn.clicked.connect(lambda: self.get_shortcut())
-        self.layout.addWidget(label_info)
-        self.layout.addWidget(btn)
-        self.setLayout(self.layout)
+        self.setupUi(self)
+        self.label.setFocus()
+        self.resize(314, 144)
+        self.btn_clear.clicked.connect(self.say_size)
         self.show()
 
-    def get_shortcut(self):
-        try:
-            keys, valid, message = shortcut.get_key_combo()
-        except shortcut.UndefinedKeyError as e:
-            valid = False
-            message = e.args[0].capitalize()
-            keys = None
+    def say_size(self):
+        print(self.geometry())
 
-        btn, parent = self.button, self.parent
-        if valid:
-            btn.setText(keys)
-            self.parent.conn.update_value("profiles", btn.objectName(), btn.text(), name=parent.current_mode_name)
-            self.close()
-        else:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            if message:
-                msg.setText(message)
-            else:
-                msg.setText(f"{keys} is not a valid combination.")
-            msg.setWindowTitle("Not valid combination.")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.exec_()
+    @staticmethod
+    def listen_keystrokes(a):
+        print(a)
+        print("heel")
+
+    def closeEvent(self, a0):
+        super().close()
+        self.parent().close()
+
+
+
+# class AssignShortcutWidget(QtWidgets.QDialog):
+#     def __init__(self, button, parent: RattrapWindow):
+#         super().__init__(parent)
+#         self.layout = QtWidgets.QVBoxLayout()
+#         self.button, self.parent = button, parent
+#         btn_name = button.objectName().title()
+#         current_shortcut = button.text()
+#         label_info = QtWidgets.QLabel(f'{btn_name} mouse button is currently assigned to "{current_shortcut}"')
+#         capture_btn = QtWidgets.QPushButton("Capture Shortcut from Keyboard")
+#         capture_btn.clicked.connect(lambda: self.get_shortcut())
+#         self.layout.addWidget(label_info)
+#         self.layout.addWidget(capture_btn)
+#         self.setLayout(self.layout)
+#         self.show()
+#
+#     def get_shortcut(self):
+#         try:
+#             keys, valid, message = shortcut.get_key_combo()
+#         except shortcut.UndefinedKeyError as e:
+#             valid = False
+#             message = e.args[0].capitalize()
+#             keys = None
+#
+#         btn, parent = self.button, self.parent
+#         if valid:
+#             btn.setText(keys)
+#             self.parent.conn.update_value("profiles", btn.objectName(), btn.text(), name=parent.current_mode_name)
+#             self.close()
+#         else:
+#             msg = QtWidgets.QMessageBox()
+#             msg.setIcon(QtWidgets.QMessageBox.Information)
+#             if message:
+#                 msg.setText(message)
+#             else:
+#                 msg.setText(f"{keys} is not a valid combination.")
+#             msg.setWindowTitle("Not valid combination.")
+#             msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+#             msg.exec_()
 
 
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtWidgets import QApplication, QWidget
 
     app = QApplication(sys.argv)
     main_window = RattrapWindow()
