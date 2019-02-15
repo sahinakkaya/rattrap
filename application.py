@@ -5,6 +5,10 @@ import shortcut
 from db_helper import DBHelper, sql  # Change this later
 from ui_rattrap import Ui_Rattrap
 
+# TODO: Separate this file into smaller pieces
+# TODO: Add functionality to save/load profiles
+# TODO: Add functionality to reset profiles to its default
+
 
 class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def __init__(self):
