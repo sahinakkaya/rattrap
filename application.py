@@ -43,7 +43,6 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
         self.set_current_mode()
-        self.assign_shortcut()
 
     def get_ratslap_path(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select the path to the 'ratslap' program...")
@@ -71,8 +70,8 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         button = self.sender()
         # widget = AssignShortcutWidget(button)
         widget = AssignShortcutWidget(button, self)
-        # x, y = self.pos().x(), self.pos().y()
-        # widget.move(x + 20, y + 10)
+        x, y = self.pos().x(), self.pos().y()
+        widget.move(x + 30, y + 125)
         # widget.resize(50, 50)
 
     def apply_changes(self):
@@ -103,23 +102,32 @@ class AssignShortcutWidget(QtWidgets.QDialog, Ui_CommandEditor):
     def __init__(self, button, parent: RattrapWindow):
         super().__init__(parent)
         self.setupUi(self)
-        self.label.setFocus()
-        self.resize(314, 144)
-        self.btn_clear.clicked.connect(self.say_size)
+        self.button = button
+        self.bind_widgets()
         self.show()
 
-    def say_size(self):
-        print(self.geometry())
+    def bind_widgets(self):
+        self.keySequenceEdit.setKeySequence(self.button.text())
+        self.buttons_specials_field.setItemText(0, self.button.text())
+
+        self.btn_clear.clicked.connect(self.keySequenceEdit.clear)
+        self.btn_ok.clicked.connect(self.register_shortcut)
+        self.btn_cancel.clicked.connect(self.close)
+
+    def register_shortcut(self):
+        self.button.setText(str(self.keySequenceEdit.keySequence().toString()))
+        self.parent().conn.update_value("profiles", self.button.objectName(), self.button.text(),
+                                        name=self.parent().current_mode_name)
+        self.close()
 
     @staticmethod
     def listen_keystrokes(a):
         print(a)
         print("heel")
 
-    def closeEvent(self, a0):
-        super().close()
-        self.parent().close()
-
+    # def closeEvent(self, a0):
+    #     super().close()
+    #     self.parent().close()
 
 
 # class AssignShortcutWidget(QtWidgets.QDialog):
