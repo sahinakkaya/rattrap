@@ -68,7 +68,6 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
 
     def assign_shortcut(self):
         button = self.sender()
-        # widget = AssignShortcutWidget(button)
         widget = AssignShortcutWidget(button, self)
         x, y = self.pos().x(), self.pos().y()
         widget.move(x + 30, y + 125)
@@ -108,22 +107,27 @@ class AssignShortcutWidget(QtWidgets.QDialog, Ui_CommandEditor):
 
     def bind_widgets(self):
         self.keySequenceEdit.setKeySequence(self.button.text())
+        self.keySequenceEdit.keySequenceChanged.connect(self.update_shortcut_label)
         self.buttons_specials_field.setItemText(0, self.button.text())
+        self.buttons_specials_field.currentTextChanged.connect(self.update_shortcut_label)
 
         self.btn_clear.clicked.connect(self.keySequenceEdit.clear)
         self.btn_ok.clicked.connect(self.register_shortcut)
         self.btn_cancel.clicked.connect(self.close)
 
-    def register_shortcut(self):
-        self.button.setText(str(self.keySequenceEdit.keySequence().toString()))
-        self.parent().conn.update_value("profiles", self.button.objectName(), self.button.text(),
-                                        name=self.parent().current_mode_name)
-        self.close()
+    def update_shortcut_label(self):
+        if self.sender().objectName() == "keySequenceEdit":
+            self.current_shortcut.setText(self.keySequenceEdit.keySequence().toString())
+        else:
+            self.current_shortcut.setText(self.buttons_specials_field.currentText())
 
-    @staticmethod
-    def listen_keystrokes(a):
-        print(a)
-        print("heel")
+    def register_shortcut(self):
+        new_shortcut = self.current_shortcut.text()
+        if new_shortcut != "":
+            self.button.setText(new_shortcut)
+            self.parent().conn.update_value(
+                "profiles", self.button.objectName(), new_shortcut, name=self.parent().current_mode_name)
+        self.close()
 
     # def closeEvent(self, a0):
     #     super().close()

@@ -29,6 +29,16 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QLabel" name="current_shortcut">
+       <property name="visible">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Enter your keystroke including any modifiers:</string>
@@ -40,8 +50,8 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
-	<property name="visible">
-         <bool>false</bool>
+       <property name="visible">
+        <bool>false</bool>
        </property>
        <property name="text">
         <string>Select a mouse function from list below:</string>
@@ -112,7 +122,7 @@
          </property>
          <item>
           <property name="text">
-           <string>CurrentKey</string>
+           <string>Current Shortcut</string>
           </property>
          </item>
          <item>
@@ -325,8 +335,8 @@
      <y>66</y>
     </hint>
     <hint type="destinationlabel">
-     <x>118</x>
-     <y>10</y>
+     <x>128</x>
+     <y>41</y>
     </hint>
    </hints>
   </connection>
@@ -357,8 +367,8 @@
      <y>93</y>
     </hint>
     <hint type="destinationlabel">
-     <x>50</x>
-     <y>15</y>
+     <x>60</x>
+     <y>45</y>
     </hint>
    </hints>
   </connection>
@@ -373,8 +383,8 @@
      <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>47</x>
-     <y>40</y>
+     <x>56</x>
+     <y>38</y>
     </hint>
    </hints>
   </connection>
