@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication
 from ui_command_editor import Ui_CommandEditor
+import shortcut
 
 
 class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
@@ -34,6 +35,46 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
             self.parent().conn.update_value(
                 "profiles", self.button.objectName(), new_shortcut, name=self.parent().current_mode_name)
         self.close()
+
+
+class AssignShortcutWidget(QtWidgets.QDialog):
+    def __init__(self, button, parent):
+        super().__init__(parent)
+        self.layout = QtWidgets.QVBoxLayout()
+        self.button, self.parent = button, parent
+        btn_name = button.objectName().title()
+        current_shortcut = button.text()
+        label_info = QtWidgets.QLabel(f'{btn_name} mouse button is currently assigned to "{current_shortcut}"')
+        capture_btn = QtWidgets.QPushButton("Capture Shortcut from Keyboard")
+        capture_btn.clicked.connect(lambda: self.get_shortcut())
+        self.layout.addWidget(label_info)
+        self.layout.addWidget(capture_btn)
+        self.setLayout(self.layout)
+        self.show()
+
+    def get_shortcut(self):
+        try:
+            keys, valid, message = shortcut.get_key_combo()
+        except shortcut.UndefinedKeyError as e:
+            valid = False
+            message = e.args[0].capitalize()
+            keys = None
+
+        btn, parent = self.button, self.parent
+        if valid:
+            btn.setText(keys)
+            self.parent.conn.update_value("profiles", btn.objectName(), btn.text(), name=parent.current_mode_name)
+            self.close()
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Information)
+            if message:
+                msg.setText(message)
+            else:
+                msg.setText(f"{keys} is not a valid combination.")
+            msg.setWindowTitle("Not valid combination.")
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg.exec_()
 
 
 if __name__ == '__main__':
