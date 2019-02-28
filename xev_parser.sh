@@ -26,21 +26,18 @@ awk -F'[ )]+' '             BEGIN {
                                 mouse=0
                             }
                             /^KeyPress/ {
-                            e=mouse?"ButtonPress":"KeyPress"
+                            e=mouse?"ModifiedButtonPress":"KeyPress"
                             for (i=0;i<2;i++) {
                                 getline
                             }
-                            key=$8
-                            if (mouse){
-                                key=key " "$5
-                            }
+                            key=$8 " " $5
                             }
                             /^MappingNotify/ {
                                 mouse= (mouse+1)%2
                                 getline
                             }
                             /^ButtonPress/ {
-                                e=$1
+                                e="ActualButtonPress"
                                 for (i=0;i<2;i++) {
                                     getline
                                 }

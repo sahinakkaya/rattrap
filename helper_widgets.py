@@ -55,7 +55,7 @@ class AssignShortcutWidget(QtWidgets.QDialog):
     def get_shortcut(self):
         try:
             keys, valid, message = shortcut.get_key_combo()
-        except shortcut.UndefinedKeyError as e:
+        except shortcut.UndefinedSymbolError as e:
             valid = False
             message = e.args[0].capitalize()
             keys = None
