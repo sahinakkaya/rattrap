@@ -17,7 +17,6 @@ class Shortcut(str):
 
     @property
     def valid(self):
-        # FIXME: is dual pressed?
         if len(self.keys) == 0:
             return False
         return bool(re.match(r"^((s)|(m*[bk]?))$", "".join(i.symbol_type[0] for i in self.keys)))
@@ -82,24 +81,28 @@ class Event:
         if keycode:
             self.keymap = self.find_keymap()
             try:
-                self.names = self.keymap[0]  # TODO: if user is not using english keyboard layout, warn him/her
+                self.name = self.keymap[0]
                 if keyname and keyname in self.keymap:
-                    self.names = keyname
+                    self.name = keyname
 
             except TypeError:
-                self.names = None
+                self.name = None
                 raise Exception(f"this exception should not be occur at all\n"
                                 f"event type: {event_type} symbol: {symbol} keycode: {keycode} keyname: {keyname}")
         else:
-            self.names = "Button " + symbol
+            self.name = "Button " + symbol
 
         for type_ in ["modifier", "button", "special", "key"]:
             if self.is_type(type_):
                 self.symbol_type = type_
-                self.repr = self.all_symbols[type_ + "s"][self.names]
+                self.repr = self.all_symbols[type_ + "s"][self.name]
                 break
         else:
-            raise UndefinedSymbolError(f"symbol not defined, '{self.names}'")
+            raise UndefinedSymbolError(f"symbol not defined, '{self.name}'")
+
+        if self.symbol not in self.keymap:
+            print(f"You pressed a key which is not in standard english keyboard layout: {self.symbol}\n"
+                  f"Ratslap can't handle non-english characters so it will be considered as '{self.repr}'\n\n")
 
         if self.is_type("modifier"):
             self.dual = self.repr.replace("Left", "Right").replace("_L", "_R")
@@ -109,7 +112,7 @@ class Event:
             self.dual = None
 
     def is_type(self, type_):
-        return self.names in self.all_symbols[type_ + "s"]
+        return self.name in self.all_symbols[type_ + "s"]
 
     def find_keymap(self):
         return list(filter(lambda x: "NoSymbol" not in x,
@@ -117,7 +120,7 @@ class Event:
                                "utf-8").strip().split()))
 
     def set_new_name(self, new_name):
-        self.names = new_name
+        self.name = new_name
 
     def set_new_repr(self, new_repr):
         self.repr = new_repr
@@ -142,7 +145,10 @@ class EventList(list):
         process = subprocess.run("./xev_parser.sh", capture_output=True)
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
-            self.append(Event(*row))
+            try:
+                self.append(Event(*row))
+            except UndefinedSymbolError as e:
+                print("S" + e.args[0][1:], ", skipping...", sep="") # TODO: Remove that magic "S"
 
     def __contains__(self, item):
         return item in [i.repr for i in self]
@@ -162,7 +168,6 @@ class EventList(list):
             except IndexError:
                 break
             else:
-                print(event)
                 if event.type == "ButtonPress":
                     best_button = self.get_best_button(self.mouse_profile, event)
                     e = Event("ButtonPress", xev_transitions_for_buttons[best_button['name']])
