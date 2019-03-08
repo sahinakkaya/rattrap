@@ -13,7 +13,7 @@ awk -F'[ )]+' -v RS='' '  BEGIN {
                                 c=0
                           } /^KeyPress|^ButtonPress|^MappingNotify/ {
                                 print
-                                c=1
+                                c+=1
                           }
                           /^KeyRelease|^ButtonRelease/ {
                                 if (c>0) {

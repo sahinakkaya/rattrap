@@ -82,6 +82,7 @@ class Event:
         if keycode:
             self.keymap = self.find_keymap()
             try:
+                # FIXME: KP_Enter is problematic
                 self.names = self.keymap[0]  # TODO: if user is not using english kayboard layout, warn him/her
                 if keyname and keyname in self.keymap:
                     self.names = keyname

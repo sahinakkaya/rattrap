@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CommandEditor(object):
     def setupUi(self, CommandEditor):
         CommandEditor.setObjectName("CommandEditor")
-        CommandEditor.resize(294, 144)
+        CommandEditor.resize(314, 144)
         CommandEditor.setMinimumSize(QtCore.QSize(294, 144))
         CommandEditor.setMaximumSize(QtCore.QSize(314, 144))
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(CommandEditor)
@@ -100,13 +100,15 @@ class Ui_CommandEditor(object):
         self.radioButton1.clicked['bool'].connect(self.label_2.hide)
         self.radioButton2.clicked['bool'].connect(self.label.hide)
         self.radioButton2.clicked['bool'].connect(self.label_2.show)
+        self.radioButton2.clicked['bool'].connect(self.pushButton.setDisabled)
+        self.radioButton1.clicked['bool'].connect(self.pushButton.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(CommandEditor)
 
     def retranslateUi(self, CommandEditor):
         _translate = QtCore.QCoreApplication.translate
         CommandEditor.setWindowTitle(_translate("CommandEditor", "Command Editor"))
         self.label.setText(_translate("CommandEditor", "Auto Capture Shortcut"))
-        self.label_2.setText(_translate("CommandEditor", "Select a mouse function from list below:"))
+        self.label_2.setText(_translate("CommandEditor", "<html><head/><body><p>Manually set shortcut</p></body></html>"))
         self.pushButton.setText(_translate("CommandEditor", "PushButton"))
         self.buttons_specials_field.setItemText(0, _translate("CommandEditor", "Current Shortcut"))
         self.buttons_specials_field.setItemText(1, _translate("CommandEditor", "Button1"))

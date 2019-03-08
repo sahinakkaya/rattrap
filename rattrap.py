@@ -71,7 +71,6 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         widget = CommandEditor(button, self)
         x, y = self.pos().x(), self.pos().y()
         widget.move(x + 30, y + 125)
-        # widget.resize(50, 50)
 
     def apply_changes(self):
         for mode in ["f3", "f4", "f5"]:
