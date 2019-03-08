@@ -1,5 +1,4 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication
 from ui_command_editor import Ui_CommandEditor
 import event_handler
 
@@ -22,18 +21,19 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
         self.btn_cancel.clicked.connect(self.close)
 
     def update_shortcut_label(self):
-        e = event_handler.EventList(self.parent().ratslap.parse_mode(3))
-        e.get_events()
-        shortcut = e.create_shortcut_from_events()
-        if len(shortcut.string) > 0:
-            self.current_shortcut.setText(shortcut.string)
-            self.pushButton.setText(shortcut.string)
-            self.btn_ok.setEnabled(shortcut.valid)
-            self.pushButton.setStyleSheet("")
-            if not shortcut.valid:
-                self.pushButton.setStyleSheet("background-color: rgb(255, 0, 4);")
-
-        # self.current_shortcut.setText(self.buttons_specials_field.currentText())
+        if self.sender().objectName() == "pushButton":
+            e = event_handler.EventList(self.parent().ratslap.parse_mode(3))
+            e.get_events()
+            shortcut = e.create_shortcut_from_events()
+            if len(shortcut.string) > 0:
+                self.current_shortcut.setText(shortcut.string)
+                self.pushButton.setText(shortcut.string)
+                self.btn_ok.setEnabled(shortcut.valid)
+                self.pushButton.setStyleSheet("")
+                if not shortcut.valid:
+                    self.pushButton.setStyleSheet("background-color: rgb(255, 0, 4);")
+        else:
+            self.current_shortcut.setText(self.buttons_specials_field.currentText())
 
     def register_shortcut(self):
         new_shortcut = self.current_shortcut.text()

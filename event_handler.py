@@ -148,7 +148,7 @@ class EventList(list):
             try:
                 self.append(Event(*row))
             except UndefinedSymbolError as e:
-                print("S" + e.args[0][1:], ", skipping...", sep="") # TODO: Remove that magic "S"
+                print("S" + e.args[0][1:], ", skipping...", sep="")  # TODO: Remove that magic "S"
 
     def __contains__(self, item):
         return item in [i.repr for i in self]
