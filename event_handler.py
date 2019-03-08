@@ -18,6 +18,8 @@ class Shortcut(str):
     @property
     def valid(self):
         # FIXME: is dual pressed?
+        if len(self.keys) == 0:
+            return False
         return bool(re.match(r"^((s)|(m*[bk]?))$", "".join(i.symbol_type[0] for i in self.keys)))
 
     @property
@@ -27,18 +29,10 @@ class Shortcut(str):
     def has_any_type(self, type_):
         return any((i.is_type(type_) for i in self.keys))
 
-    # def dual_pressed(self, k):
-    #     try:
-    #         return any(i.dual == k.repr for i in self.keys)
-    #     except AttributeError:
-    #         self.valid = False
-    #         return True
-
     def all_modifiers(self):
-        return all(i.is_type("modifier") for i in self.keys)
+        return all(i.is_type("modifier") for i in self.keys) and len(self.keys) > 0
 
     def __iadd__(self, other):
-        # print(other.repr, other.type)
         self.keys.insert(0, other)
         return self
 
@@ -79,10 +73,6 @@ class Event:
                  'KP_Enter': 'NumEnter', 'KP_0': 'Num0', 'KP_1': 'Num1', 'KP_2': 'Num2', 'KP_3': 'Num3', 'KP_4': 'Num4',
                  'KP_5': 'Num5', 'KP_6': 'Num6', 'KP_7': 'Num7', 'KP_8': 'Num8', 'KP_9': 'Num9', 'KP_Decimal': 'Num.',
                  'Menu': 'Menu'}}
-
-    # 'Control_R': 'RightCtrl', 'Shift_R': 'RightShift', 'Alt_R': 'RightAlt',
-    # 'Super_R': 'Super_R', 'Shift_L': 'LeftShift', 'Alt_L': 'LeftAlt', 'Super_L': 'Super_L',
-    # 'Control_L': 'LeftCtrl'
 
     def __init__(self, event_type, symbol, keycode=None, keyname=None):
         self.type = event_type
@@ -153,26 +143,6 @@ class EventList(list):
         for row in event_table:
             self.append(Event(*row))
 
-    def mouse_presses(self, type_="all"):
-        if type_ == "all":
-            event_types = ("ActualButtonPress", "ModifiedButtonPress")
-        elif type_ == "actual":
-            event_types = ("ActualButtonPress",)
-        elif type_ == "modified":
-            event_types = ("ModifiedButtonPress",)
-
-        return EventList(self.mouse_profile, filter(lambda x: x.type in event_types, self))
-
-    def keyboard_presses(self, dummy_var):
-        return EventList(self.mouse_profile, filter(lambda x: x.type == "KeyPress", self))
-
-    def non_modifier_button(self, input_device, type_=None):
-        n = []
-        for event in getattr(self, input_device + "_presses")(type_):
-            if event.symbol_type in ("key", "button"):
-                n.append(event)
-        return n
-
     def __contains__(self, item):
         return item in [i.repr for i in self]
 
@@ -192,9 +162,9 @@ class EventList(list):
                 break
             else:
                 print(event)
-                if event.type in ("ActualButtonPress", "ModifiedButtonPress"):
+                if event.type == "ButtonPress":
                     best_button = self.get_best_button(self.mouse_profile, event)
-                    e = Event("ActualButtonPress", xev_transitions_for_buttons[best_button['name']])
+                    e = Event("ButtonPress", xev_transitions_for_buttons[best_button['name']])
                     self.remove(best_button["shortcut"])
                     shortcut += e
                 else:
@@ -208,7 +178,6 @@ class EventList(list):
         for button_name, shortcut in possible_buttons.items():
             if all(keyname in self for keyname in shortcut) and len(shortcut) > len(r['shortcut']):
                 r['name'], r['shortcut'] = button_name, shortcut
-
         return r
 
 

@@ -26,7 +26,7 @@ awk -F'[ )]+' '             BEGIN {
                                 mouse=0
                             }
                             /^KeyPress/ {
-                            e=mouse?"ModifiedButtonPress":"KeyPress"
+                            e=mouse?"ButtonPress":"KeyPress"
                             for (i=0;i<2;i++) {
                                 getline
                             }
@@ -37,7 +37,7 @@ awk -F'[ )]+' '             BEGIN {
                                 getline
                             }
                             /^ButtonPress/ {
-                                e="ActualButtonPress"
+                                e="ButtonPress"
                                 for (i=0;i<2;i++) {
                                     getline
                                 }
