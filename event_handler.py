@@ -82,7 +82,6 @@ class Event:
         if keycode:
             self.keymap = self.find_keymap()
             try:
-                # FIXME: KP_Enter is problematic
                 self.names = self.keymap[0]  # TODO: if user is not using english keyboard layout, warn him/her
                 if keyname and keyname in self.keymap:
                     self.names = keyname
@@ -113,8 +112,9 @@ class Event:
         return self.names in self.all_symbols[type_ + "s"]
 
     def find_keymap(self):
-        return subprocess.run(["./find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
-            "utf-8").strip().split()
+        return list(filter(lambda x: "NoSymbol" not in x,
+                           subprocess.run(["./find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
+                               "utf-8").strip().split()))
 
     def set_new_name(self, new_name):
         self.names = new_name
