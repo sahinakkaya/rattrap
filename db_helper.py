@@ -17,6 +17,12 @@ class DBHelper:
             self.insert_values("defaults", **mode)
         self.drop_table("profiles")
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def create_table(self, table_name, columns):
         self.c.execute(f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(columns)})")
         self.commit()
