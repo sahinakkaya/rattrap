@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication
 from ui_command_editor import Ui_CommandEditor
-import shortcut
+import event_handler
 
 
 class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
@@ -13,18 +13,29 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
         self.show()
 
     def bind_widgets(self):
-        self.keySequenceEdit.setKeySequence(self.button.text())
-        self.keySequenceEdit.keySequenceChanged.connect(self.update_shortcut_label)
+        self.pushButton.setText(self.button.text())
+        # self.keySequenceEdit.setKeySequence(self.button.text())
+        self.pushButton.clicked.connect(self.update_shortcut_label)
+        # self.keySequenceEdit.keySequenceChanged.connect(self.update_shortcut_label)
         self.buttons_specials_field.setItemText(0, self.button.text())
         self.buttons_specials_field.currentTextChanged.connect(self.update_shortcut_label)
 
-        self.btn_clear.clicked.connect(self.keySequenceEdit.clear)
+        # self.btn_clear.clicked.connect(self.keySequenceEdit.clear)
         self.btn_ok.clicked.connect(self.register_shortcut)
         self.btn_cancel.clicked.connect(self.close)
 
     def update_shortcut_label(self):
-        if self.sender().objectName() == "keySequenceEdit":
-            self.current_shortcut.setText(self.keySequenceEdit.keySequence().toString())
+        e = event_handler.EventList(self.parent().ratslap.parse_mode(3))
+        e.get_events()
+        shortcut = e.create_shortcut_from_events()
+        # print(self.shortcut)
+        if self.sender().objectName() == "pushButton":
+            self.current_shortcut.setText(shortcut.string)
+            self.pushButton.setText(shortcut.string)
+            self.btn_ok.setEnabled(shortcut.valid)
+            self.pushButton.setStyleSheet("")
+            if not shortcut.valid:
+                self.pushButton.setStyleSheet("background-color: rgb(255, 0, 4);")
         else:
             self.current_shortcut.setText(self.buttons_specials_field.currentText())
 
@@ -54,8 +65,8 @@ class AssignShortcutWidget(QtWidgets.QDialog):
 
     def get_shortcut(self):
         try:
-            keys, valid, message = shortcut.get_key_combo()
-        except shortcut.UndefinedSymbolError as e:
+            keys, valid, message = event_handler.get_key_combo()
+        except event_handler.UndefinedSymbolError as e:
             valid = False
             message = e.args[0].capitalize()
             keys = None
@@ -79,6 +90,7 @@ class AssignShortcutWidget(QtWidgets.QDialog):
 
 if __name__ == '__main__':
     import sys
+
     app = QApplication(sys.argv)
     widget = CommandEditor()
     sys.exit(app.exec_())

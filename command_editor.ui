@@ -41,7 +41,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Enter your keystroke including any modifiers:</string>
+        <string>Auto Capture Shortcut</string>
        </property>
       </widget>
      </item>
@@ -77,12 +77,9 @@
         </widget>
        </item>
        <item>
-        <widget class="QKeySequenceEdit" name="keySequenceEdit"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="btn_clear">
+        <widget class="QPushButton" name="pushButton">
          <property name="text">
-          <string>Clear</string>
+          <string>PushButton</string>
          </property>
         </widget>
        </item>
@@ -231,38 +228,6 @@
   <connection>
    <sender>radioButton1</sender>
    <signal>clicked(bool)</signal>
-   <receiver>keySequenceEdit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>24</x>
-     <y>62</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>43</x>
-     <y>62</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton1</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>btn_clear</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>15</x>
-     <y>57</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>231</x>
-     <y>54</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton1</sender>
-   <signal>clicked(bool)</signal>
    <receiver>buttons_specials_field</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
@@ -289,38 +254,6 @@
     <hint type="destinationlabel">
      <x>192</x>
      <y>88</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>keySequenceEdit</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>21</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>58</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>radioButton2</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>btn_clear</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>17</x>
-     <y>90</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>244</x>
-     <y>54</y>
     </hint>
    </hints>
   </connection>

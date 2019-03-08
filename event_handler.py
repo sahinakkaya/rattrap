@@ -10,6 +10,48 @@ class UndefinedSymbolError(Exception):
     pass
 
 
+class Shortcut(str):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.keys = []
+
+    @property
+    def valid(self):
+        # FIXME: is dual pressed?
+        return bool(re.match(r"^((s)|(m*[bk]?))$", "".join(i.symbol_type[0] for i in self.keys)))
+
+    @property
+    def string(self):
+        return " + ".join(i.repr for i in self.keys) + ("+ " if self.all_modifiers() else "")
+
+    def has_any_type(self, type_):
+        return any((i.is_type(type_) for i in self.keys))
+
+    # def dual_pressed(self, k):
+    #     try:
+    #         return any(i.dual == k.repr for i in self.keys)
+    #     except AttributeError:
+    #         self.valid = False
+    #         return True
+
+    def all_modifiers(self):
+        return all(i.is_type("modifier") for i in self.keys)
+
+    def __iadd__(self, other):
+        # print(other.repr, other.type)
+        self.keys.insert(0, other)
+        return self
+
+    def __str__(self):
+        if self.valid:
+            return self.string
+        else:
+            return self.string + " is not a valid combo."
+
+    def __repr__(self):
+        return "+".join(i.repr for i in self.keys) + ("+" if self.all_modifiers() else "")
+
+
 class Event:
     all_symbols = {
         'modifiers': {'Shift_L': 'LeftShift', 'Alt_L': 'LeftAlt', 'Super_L': 'Super_L', 'Control_L': 'LeftCtrl',
@@ -50,23 +92,24 @@ class Event:
         if keycode:
             self.keymap = self.find_keymap()
             try:
-                self.name = self.keymap[0]  # TODO: if user is not using english kayboard layout, warn him/her
+                self.names = self.keymap[0]  # TODO: if user is not using english kayboard layout, warn him/her
                 if keyname and keyname in self.keymap:
-                    self.name = keyname
+                    self.names = keyname
+
             except TypeError:
-                self.name = None
+                self.names = None
                 raise Exception(f"this exception should not be occur at all\n"
                                 f"event type: {event_type} symbol: {symbol} keycode: {keycode} keyname: {keyname}")
         else:
-            self.name = "Button " + symbol
+            self.names = "Button " + symbol
 
         for type_ in ["modifier", "button", "special", "key"]:
             if self.is_type(type_):
                 self.symbol_type = type_
-                self.repr = self.all_symbols[type_ + "s"][self.name]
+                self.repr = self.all_symbols[type_ + "s"][self.names]
                 break
         else:
-            raise UndefinedSymbolError(f"symbol not defined, '{self.name}'")
+            raise UndefinedSymbolError(f"symbol not defined, '{self.names}'")
 
         if self.is_type("modifier"):
             self.dual = self.repr.replace("Left", "Right").replace("_L", "_R")
@@ -76,14 +119,14 @@ class Event:
             self.dual = None
 
     def is_type(self, type_):
-        return self.name in self.all_symbols[type_ + "s"]
+        return self.names in self.all_symbols[type_ + "s"]
 
     def find_keymap(self):
         return subprocess.run(["./find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
             "utf-8").strip().split()
 
     def set_new_name(self, new_name):
-        self.name = new_name
+        self.names = new_name
 
     def set_new_repr(self, new_repr):
         self.repr = new_repr
@@ -95,51 +138,10 @@ class Event:
         return self.__repr__()
 
 
-class ShortcutString:
-    def __init__(self):
-        self.keys = []
-
-    @property
-    def valid(self):
-        # FIXME: is dual pressed?
-        return re.match(r"^((s)|(m*[bk]?))$", "".join(i.symbol_type[0] for i in self.keys))
-
-    @property
-    def repr(self):
-        return self.__str__()
-
-    def has_any_type(self, type_):
-        return any((i.is_type(type_) for i in self.keys))
-
-    # def dual_pressed(self, k):
-    #     try:
-    #         return any(i.dual == k.repr for i in self.keys)
-    #     except AttributeError:
-    #         self.valid = False
-    #         return True
-
-    def all_modifiers(self):
-        return all(i.is_type("modifier") for i in self.keys)
-
-    def __iadd__(self, other):
-        # print(other.repr, other.type)
-        self.keys.insert(0, other)
-        return self
-
-    def __str__(self):
-        r = " + ".join(i.repr for i in self.keys) + ("+ " if self.all_modifiers() else "")
-        if self.valid:
-            return r
-        else:
-            return r + " is not a valid combo."
-
-    def __repr__(self):
-        return "+".join(i.repr for i in self.keys) + ("+" if self.all_modifiers() else "")
-
-
 class EventList(list):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, mouse_profile, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.mouse_profile = {i: list(map(str.strip, filter(None, j.split(" +")))) for i, j in mouse_profile.items()}
 
     def append(self, event):
         if not self.__contains__(event):
@@ -159,10 +161,10 @@ class EventList(list):
         elif type_ == "modified":
             event_types = ("ModifiedButtonPress",)
 
-        return EventList(filter(lambda x: x.type in event_types, self))
+        return EventList(self.mouse_profile, filter(lambda x: x.type in event_types, self))
 
     def keyboard_presses(self, dummy_var):
-        return EventList(filter(lambda x: x.type == "KeyPress", self))
+        return EventList(self.mouse_profile, filter(lambda x: x.type == "KeyPress", self))
 
     def non_modifier_button(self, input_device, type_=None):
         n = []
@@ -177,14 +179,11 @@ class EventList(list):
     def remove(self, shortcut_list):
         self[:] = [event for event in self if event.repr not in shortcut_list]
 
-    def get_shortcut_string(self):
-        shortcut_string = ShortcutString()
-        import ratslap
-        mode = ratslap.Ratslap("/home/sahin/Desktop/ratslap/ratslap").parse_mode("4")
+    def create_shortcut_from_events(self):
+        shortcut = Shortcut()
+
         xev_transitions_for_buttons = {'left': '1', 'right': '3', 'middle': '2', 'g4': '8', 'g5': '9', 'g6': '10',
                                        'g7': '11', 'g8': '12', 'g9': '13'}
-        mode = {i: list(map(str.strip, filter(None, j.split(" +")))) for i, j in mode.items()}
-        print(mode)
 
         while True:
             try:
@@ -192,15 +191,16 @@ class EventList(list):
             except IndexError:
                 break
             else:
+                print(event)
                 if event.type in ("ActualButtonPress", "ModifiedButtonPress"):
-                    best_button = self.get_best_button(mode, event)
+                    best_button = self.get_best_button(self.mouse_profile, event)
                     e = Event("ActualButtonPress", xev_transitions_for_buttons[best_button['name']])
                     self.remove(best_button["shortcut"])
-                    shortcut_string += e
+                    shortcut += e
                 else:
                     self.remove([event.repr])
-                    shortcut_string += event
-        return shortcut_string
+                    shortcut += event
+        return shortcut
 
     def get_best_button(self, mode, event):
         possible_buttons = {k: v for k, v in mode.items() if event.repr in v}
@@ -213,6 +213,12 @@ class EventList(list):
 
 
 if __name__ == '__main__':
-    e = EventList()
+    import ratslap
+    from db_helper import DBHelper
+
+    with DBHelper("settings.db") as conn:
+        path = conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
+
+    e = EventList(ratslap.Ratslap(path).parse_mode(3))
     e.get_events()
-    print(e.get_shortcut_string())
+    print(e.create_shortcut_from_events())
