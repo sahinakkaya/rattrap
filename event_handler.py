@@ -83,7 +83,7 @@ class Event:
             self.keymap = self.find_keymap()
             try:
                 # FIXME: KP_Enter is problematic
-                self.names = self.keymap[0]  # TODO: if user is not using english kayboard layout, warn him/her
+                self.names = self.keymap[0]  # TODO: if user is not using english keyboard layout, warn him/her
                 if keyname and keyname in self.keymap:
                     self.names = keyname
 
@@ -189,6 +189,6 @@ if __name__ == '__main__':
     with DBHelper("settings.db") as conn:
         path = conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
-    e = EventList(ratslap.Ratslap(path).parse_mode(3))
-    e.get_events()
-    print(e.create_shortcut_from_events())
+    event_list = EventList(ratslap.Ratslap(path).parse_mode(3))
+    event_list.get_events()
+    print(event_list.create_shortcut_from_events())

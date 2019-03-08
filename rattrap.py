@@ -1,7 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication
 import ratslap
-from db_helper import DBHelper, sql  # Change this later
+from db_helper import DBHelper, OperationalError
 from helper_widgets import CommandEditor
 from ui_rattrap import Ui_Rattrap
 
@@ -37,7 +37,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.show()
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
-        except sql.OperationalError:
+        except OperationalError:
             ratslap_path = self.get_ratslap_path()
         self.ratslap = ratslap.Ratslap(ratslap_path)
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:

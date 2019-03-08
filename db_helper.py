@@ -2,6 +2,10 @@ import sqlite3 as sql
 from ratslap import Ratslap
 
 
+class OperationalError(sql.OperationalError):
+    pass
+
+
 class DBHelper:
     def __init__(self, filename="settings_test.db"):
         self.filename = filename
@@ -42,9 +46,13 @@ class DBHelper:
         self.commit()
 
     def select(self, table_name, columns, **conditions):
-        return self.c.execute(
-            f"SELECT {', '.join(columns)} FROM {table_name} "
-            "WHERE " + " AND ".join([key + " = " + repr(conditions[key]) for key in conditions]) if conditions else "")
+        try:
+            return self.c.execute(
+                f"SELECT {', '.join(columns)} FROM {table_name} "
+                "WHERE " + " AND ".join(
+                    [key + " = " + repr(conditions[key]) for key in conditions]) if conditions else "")
+        except sql.OperationalError as e:
+            raise OperationalError(e)
 
     def drop_table(self, table_name):
         self.c.execute(f"DROP TABLE IF EXISTS {table_name}")

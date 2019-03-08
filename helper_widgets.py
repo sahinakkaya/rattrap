@@ -42,11 +42,3 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
             self.parent().conn.update_value(
                 "profiles", self.button.objectName(), new_shortcut, name=self.parent().current_mode_name)
         self.close()
-
-
-if __name__ == '__main__':
-    import sys
-
-    app = QApplication(sys.argv)
-    widget = CommandEditor()
-    sys.exit(app.exec_())
