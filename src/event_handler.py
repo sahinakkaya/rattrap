@@ -1,5 +1,7 @@
 import subprocess
 import re
+from src.ratslap import Ratslap
+from src.db_helper import DBHelper
 
 
 class MetaKeyError(Exception):
@@ -116,7 +118,7 @@ class Event:
 
     def find_keymap(self):
         return list(filter(lambda x: "NoSymbol" not in x,
-                           subprocess.run(["./find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
+                           subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
                                "utf-8").strip().split()))
 
     def set_new_name(self, new_name):
@@ -142,7 +144,7 @@ class EventList(list):
             super(EventList, self).append(event)
 
     def get_events(self):
-        process = subprocess.run("./xev_parser.sh", capture_output=True)
+        process = subprocess.run("./shell_scripts/xev_parser.sh", capture_output=True)
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
@@ -188,12 +190,9 @@ class EventList(list):
 
 
 if __name__ == '__main__':
-    import ratslap
-    from db_helper import DBHelper
-
     with DBHelper("settings.db") as conn:
         path = conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
-    event_list = EventList(ratslap.Ratslap(path).parse_mode(3))
+    event_list = EventList(Ratslap(path).parse_mode(3))
     event_list.get_events()
     print(event_list.create_shortcut_from_events())

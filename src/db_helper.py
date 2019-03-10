@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from ratslap import Ratslap
+from src.ratslap import Ratslap
 
 
 class OperationalError(sql.OperationalError):

@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from rattrap import RattrapWindow
+from src.rattrap import RattrapWindow
 
 # TODO: Add functionality to save/load profiles
 # TODO: Add functionality to reset profiles to its default

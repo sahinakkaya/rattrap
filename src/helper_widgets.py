@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
-from ui_command_editor import Ui_CommandEditor
-import event_handler
+from UI.ui_command_editor import Ui_CommandEditor
+from . import event_handler
 
 
 class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
@@ -22,7 +22,6 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
 
     def update_shortcut_label(self):
         parent = self.parent()
-        ratslap = self.parent().ratslap
         if self.sender().objectName() == "pushButton":
             e = event_handler.EventList(parent.ratslap.parse_mode(parent.current_mode_name))
             e.get_events()

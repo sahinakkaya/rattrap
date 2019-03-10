@@ -1,9 +1,9 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication
-import ratslap
-from db_helper import DBHelper, OperationalError
-from helper_widgets import CommandEditor
-from ui_rattrap import Ui_Rattrap
+import src.ratslap as ratslap
+from src.db_helper import DBHelper, OperationalError
+from src.helper_widgets import CommandEditor
+from UI.ui_rattrap import Ui_Rattrap
 
 
 class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
