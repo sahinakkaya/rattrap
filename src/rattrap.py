@@ -11,7 +11,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.resize(0, 0)
+        self.resize(303,477)
         self.move(QtWidgets.QApplication.desktop().screen().rect().center() - self.rect().center())
 
         self.current_mode_name = None

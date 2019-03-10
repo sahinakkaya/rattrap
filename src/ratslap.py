@@ -107,8 +107,8 @@ class Ratslap:
         return mode
 
     def modify(self, mode_index=3, **kwargs):
-        my_dict = {key: kwargs[key] for key in kwargs}
-        distinct_options = self.get_difference(mode_index, **my_dict)
+        distinct_options = self.get_difference(mode_index, **kwargs)
+        distinct_options.pop("dpi_shift", None)  # Don't know how I even managed to changed my dpi shift value
         if distinct_options:
             command = f"--modify {self.mode(mode_index)} "
             options = " ".join([f"--{key} {''.join(distinct_options[key].split())}" for key in distinct_options])
@@ -124,11 +124,10 @@ class Ratslap:
         return different_items
 
     def reset(self, mode):
-        if input("Confirm reset? ([Y/any key])").lower() == 'y':
-            for mode_index in range(3, 6):
-                if str(mode).lower() == 'all' or mode == mode_index:
-                    args = self.defaults[self.mode(mode_index)]
-                    self.modify(mode_index, **args)
+        for mode_index in range(3, 6):
+            if str(mode).lower() == 'all' or mode == mode_index:
+                args = self.defaults[self.mode(mode_index)]
+                self.modify(mode_index, **args)
 
     def get_valid(self, option):
         if option == "keys":

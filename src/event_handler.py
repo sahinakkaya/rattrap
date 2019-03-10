@@ -25,7 +25,7 @@ class Shortcut(str):
 
     @property
     def string(self):
-        return " + ".join(i.repr for i in self.keys) + ("+ " if self.all_modifiers() else "")
+        return " + ".join(i.repr for i in self.keys) + (" +" if self.all_modifiers() else "")
 
     def has_any_type(self, type_):
         return any((i.is_type(type_) for i in self.keys))
@@ -44,7 +44,7 @@ class Shortcut(str):
             return self.string + " is not a valid combo."
 
     def __repr__(self):
-        return "+".join(i.repr for i in self.keys) + ("+" if self.all_modifiers() else "")
+        return "+".join(i.repr for i in self.keys) + (" +" if self.all_modifiers() else "")
 
 
 class Event:
