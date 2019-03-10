@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>356</width>
-    <height>633</height>
+    <width>313</width>
+    <height>528</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Rattrap</string>
@@ -34,6 +40,9 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="statusTip">
+              <string>Select and modify F3</string>
+             </property>
              <property name="text">
               <string>F3</string>
              </property>
@@ -44,6 +53,9 @@
              <property name="enabled">
               <bool>false</bool>
              </property>
+             <property name="statusTip">
+              <string>Select and modify F4</string>
+             </property>
              <property name="text">
               <string>F4</string>
              </property>
@@ -53,6 +65,9 @@
             <widget class="QRadioButton" name="mode3">
              <property name="enabled">
               <bool>false</bool>
+             </property>
+             <property name="statusTip">
+              <string>Select and modify F5</string>
              </property>
              <property name="text">
               <string>F5</string>
@@ -72,6 +87,9 @@
            </item>
            <item>
             <widget class="QComboBox" name="color">
+             <property name="statusTip">
+              <string>Change the color</string>
+             </property>
              <item>
               <property name="text">
                <string>Black</string>
@@ -136,6 +154,12 @@
            </item>
            <item>
             <widget class="QComboBox" name="rate">
+             <property name="statusTip">
+              <string>Measurement of how often your mouse reports its position to a computer </string>
+             </property>
+             <property name="whatsThis">
+              <string> how often it reports its position to a computer. </string>
+             </property>
              <item>
               <property name="text">
                <string>125</string>
@@ -444,14 +468,98 @@
           </layout>
          </item>
          <item>
-          <widget class="QPushButton" name="button_apply">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>Apply Changes!</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_13">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Action</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_apply">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Apply all changes</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_reset">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Reset to defaults</string>
+             </property>
+             <property name="whatsThis">
+              <string/>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_export">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Export configuration</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="button_import">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="statusTip">
+              <string>Import configuration</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </item>
@@ -465,7 +573,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>356</width>
+     <width>313</width>
      <height>20</height>
     </rect>
    </property>

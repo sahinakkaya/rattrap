@@ -36,6 +36,10 @@ class DBHelper:
                        f"VALUES ({', '.join([':' + key for key in kwargs])})", kwargs)
         self.commit()
 
+    def delete_row(self,table_name, **conditions):
+        self.c.execute(f"DELETE FROM {table_name} "
+                       f"WHERE {' AND '.join([key + ' = ' + repr(conditions[key]) for key in conditions])}")
+
     def get_column_names(self, table_name):
         table_info = self.c.execute(f"PRAGMA table_info({table_name})").fetchall()
         return [info[1] for info in table_info]
