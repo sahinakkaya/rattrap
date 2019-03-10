@@ -53,6 +53,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
 
     def set_current_mode(self):
         self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5
+        self.ratslap.select_mode(self.current_mode_name)
         current_mode = self.get_mode(self.current_mode_name)
 
         for item in self.combo_boxes + self.unchangeable_items + self.buttons:

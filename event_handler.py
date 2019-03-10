@@ -100,7 +100,7 @@ class Event:
         else:
             raise UndefinedSymbolError(f"symbol not defined, '{self.name}'")
 
-        if self.symbol not in self.keymap:
+        if keycode and self.symbol not in self.keymap:
             print(f"You pressed a key which is not in standard english keyboard layout: {self.symbol}\n"
                   f"Ratslap can't handle non-english characters so it will be considered as '{self.repr}'\n\n")
 

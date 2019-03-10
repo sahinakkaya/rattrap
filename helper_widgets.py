@@ -21,8 +21,10 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
         self.btn_cancel.clicked.connect(self.close)
 
     def update_shortcut_label(self):
+        parent = self.parent()
+        ratslap = self.parent().ratslap
         if self.sender().objectName() == "pushButton":
-            e = event_handler.EventList(self.parent().ratslap.parse_mode(3))
+            e = event_handler.EventList(parent.ratslap.parse_mode(parent.current_mode_name))
             e.get_events()
             shortcut = e.create_shortcut_from_events()
             if len(shortcut.string) > 0:
