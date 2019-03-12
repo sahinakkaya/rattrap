@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication
+from json import dump, loads
 import src.ratslap as ratslap
 from src.db_helper import DBHelper, OperationalError
 from src.helper_widgets import CommandEditor
@@ -11,7 +12,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.resize(303,477)
+        self.resize(303, 477)
         self.move(QtWidgets.QApplication.desktop().screen().rect().center() - self.rect().center())
 
         self.current_mode_name = None
@@ -76,10 +77,21 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
                 break
 
     def import_action(self):
-        print("import")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file")
+        if path:
+            with open(path) as f:
+                for i in range(3, 6):
+                    self.ratslap.modify(i, **loads(f.readline()))
+                    self.conn.delete_row("profiles", name="f" + str(i))
+                    self.set_current_mode()
 
     def export_action(self):
-        print("export")
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Export to a file")
+        if path:
+            with open(path, "w") as f:
+                for i in range(3, 6):
+                    dump(self.ratslap.parse_mode(i), f)
+                    f.write("\n")
 
     def apply_action(self):
         for mode in ["f3", "f4", "f5"]:
