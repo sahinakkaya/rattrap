@@ -1,14 +1,6 @@
 import subprocess
+import re
 from collections import OrderedDict
-
-h = "h"
-V = "V"
-li = "li"
-s = "s"
-p = "p"
-m = "m"
-r = "r"
-c = "c"
 
 
 class PermissionDeniedError(Exception):
@@ -35,14 +27,23 @@ class Ratslap:
 
     def _get_options(self):
         opt_list = []
+        process = self.run("h")
+        error = output = None
         try:
-            process = self.run("h")
             self.run('p', "f3")
-        except PermissionDeniedError:
-            print("Make sure you are able to run following command on terminal:")
-            print(f"{self.path} -p f3")
-            print("You may want to follow the instructions at https://gitlab.com/krayon/ratslap to solve the problem.")
-            raise PermissionDeniedError
+        except Exception as e:
+            print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
+                  f"{self.path} -p f3\n\n"
+                  f"Original error message was:\n{e.args[0]}")
+            try:
+                raise e
+            except PermissionDeniedError:
+                print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
+                      "to solve the problem.")
+            except Exception:
+                pass
+            finally:
+                exit(-1)
         else:
             output, error = map(lambda f: f.decode("utf-8").splitlines(), [process.stdout, process.stderr])
         if error:
@@ -63,10 +64,11 @@ class Ratslap:
         else:
             process = subprocess.run([self.path, '-' * dash_num + arg], capture_output=True)
         if process.stderr:
-            try:
-                err = process.stderr.decode("utf-8").split(": ", 1)[1]
-                raise PermissionDeniedError(err)
-            except IndexError:
+            stderr = process.stderr.decode("utf-8")
+            permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+            if permission_denied:
+                raise PermissionDeniedError(permission_denied.group(0))
+            else:
                 raise Exception(process.stderr.decode("utf-8"))
 
         output = process.stdout.decode("utf-8")
