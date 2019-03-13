@@ -84,7 +84,7 @@ class Ratslap:
         if val[0] == 'f':
             return val
         else:
-            return "f" + val
+            return f"f{val}"
 
     def pretty_run(self, arg, val=None):
         self.run(arg, val, True)

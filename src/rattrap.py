@@ -22,7 +22,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.combo_boxes = [self.color, self.rate]
         self.unchangeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.dpi_shift]
         self.buttons = [self.right, self.middle, self.left]
-        self.buttons.extend([getattr(self, "g" + str(i)) for i in range(4, 10)])
+        self.buttons.extend([getattr(self, f"g{str(i)}") for i in range(4, 10)])
         self.action_names = ["reset", "import", "export", "apply"]
 
         self.bind_functions_to_buttons()
@@ -71,7 +71,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
                 break
             elif response == msg_box.Yes:
                 self.ratslap.reset(i)
-                self.conn.delete_row("profiles", name="f" + str(i))
+                self.conn.delete_row("profiles", name=f"f{str(i)}")
                 self.set_current_mode()
             elif response == msg_box.NoToAll:
                 break
@@ -82,7 +82,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
             with open(path) as f:
                 for i in range(3, 6):
                     self.ratslap.modify(i, **loads(f.readline()))
-                    self.conn.delete_row("profiles", name="f" + str(i))
+                    self.conn.delete_row("profiles", name=f"f{str(i)}")
                     self.set_current_mode()
 
     def export_action(self):

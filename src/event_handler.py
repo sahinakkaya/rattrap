@@ -41,7 +41,7 @@ class Shortcut(str):
         if self.valid:
             return self.string
         else:
-            return self.string + " is not a valid combo."
+            return f"{self.string} is not a valid combo."
 
     def __repr__(self):
         return "+".join(i.repr for i in self.keys) + (" +" if self.all_modifiers() else "")
@@ -92,12 +92,12 @@ class Event:
                 raise Exception(f"this exception should not be occur at all\n"
                                 f"event type: {event_type} symbol: {symbol} keycode: {keycode} keyname: {keyname}")
         else:
-            self.name = "Button " + symbol
+            self.name = f"Button {symbol}"
 
         for type_ in ["modifier", "button", "special", "key"]:
             if self.is_type(type_):
                 self.symbol_type = type_
-                self.repr = self.all_symbols[type_ + "s"][self.name]
+                self.repr = self.all_symbols[f"{type_}s"][self.name]
                 break
         else:
             raise UndefinedSymbolError(f"symbol not defined, '{self.name}'")
@@ -114,12 +114,12 @@ class Event:
             self.dual = None
 
     def is_type(self, type_):
-        return self.name in self.all_symbols[type_ + "s"]
+        return self.name in self.all_symbols[f"{type_}s"]
 
     def find_keymap(self):
         return list(filter(lambda x: "NoSymbol" not in x,
-                           subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)], capture_output=True).stdout.decode(
-                               "utf-8").strip().split()))
+                           subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)],
+                                          capture_output=True).stdout.decode("utf-8").strip().split()))
 
     def set_new_name(self, new_name):
         self.name = new_name
