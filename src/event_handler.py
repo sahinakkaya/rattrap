@@ -118,7 +118,7 @@ class Event:
 
     def find_keymap(self):
         return list(filter(lambda x: "NoSymbol" not in x,
-                           subprocess.run(["../shell_scripts/find_keymap.sh", str(self.keycode)],
+                           subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)],
                                           capture_output=True).stdout.decode("utf-8").strip().split()))
 
     def set_new_name(self, new_name):
@@ -144,7 +144,7 @@ class EventList(list):
             super(EventList, self).append(event)
 
     def get_events(self):
-        process = subprocess.run("../shell_scripts/xev_parser.sh", capture_output=True)
+        process = subprocess.run("./shell_scripts/xev_parser.sh", capture_output=True)
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
