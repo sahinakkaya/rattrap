@@ -18,9 +18,9 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.current_mode_name = None
 
         # Grouping similar items together.
-        self.radio_buttons = [getattr(self, "mode" + i) for i in "123"]
+        self.radio_buttons = [getattr(self, f"mode{i}") for i in "123"]
         self.combo_boxes = [self.color, self.rate]
-        self.unchangeable_items = [getattr(self, "dpi" + i) for i in "1234"] + [self.dpi_shift]
+        self.unchangeable_items = [getattr(self, f"dpi{i}") for i in "1234"] + [self.dpi_shift]
         self.buttons = [self.right, self.middle, self.left]
         self.buttons.extend([getattr(self, f"g{str(i)}") for i in range(4, 10)])
         self.action_names = ["reset", "import", "export", "apply"]
@@ -32,12 +32,37 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.show()
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
+
         except OperationalError:
             ratslap_path = self.get_ratslap_path()
+        else:
+            try:
+                ratslap.Ratslap(ratslap_path)
+            except ratslap.NonValidPathError:
+                ratslap_path = self.get_new_path(ratslap_path)
+
         self.ratslap = ratslap.Ratslap(ratslap_path)
+        setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
         self.set_current_mode()
+
+    def catch_exceptions(self, function):
+        def wrapper(*args, **kwargs):
+            try:
+                result = function(*args, **kwargs)
+            except ratslap.NonValidPathError:
+                self.ratslap.path = self.get_new_path(self.ratslap.path)
+                result = function(*args, **kwargs)
+            return result
+
+        return wrapper
+
+    def get_new_path(self, previous_path):
+        text = f"The previous path to ratslap program: '{previous_path}' is unreachable. If you want to " \
+            f"continue using rattrap program please specify the path to 'ratslap'"
+        QtWidgets.QMessageBox.information(self, "Unable to reach 'ratslap'", text, QtWidgets.QMessageBox.Ok)
+        return self.get_ratslap_path()
 
     def set_icons(self):
         for name in self.action_names:
@@ -108,11 +133,28 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         widget.move(x + 30, y + 125)
 
     def get_ratslap_path(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select the path to the 'ratslap' program...")
-        if path:
-            self.conn.create_table("file_paths", ["program_name", "path"])
-            self.conn.insert_values("file_paths", **{"program_name": "ratslap", "path": path})
-            return path
+        path_valid, first_try = False, True
+        path = None
+        while not path_valid:
+            if not first_try:
+                QtWidgets.QMessageBox.information(self, "Non valid path",
+                                                  "The path you specified is not valid. Try again",
+                                                  QtWidgets.QMessageBox.Ok)
+            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select the path to the 'ratslap' program...")
+            if path:
+                try:
+                    ratslap.Ratslap(path)
+                except ratslap.NonValidPathError:
+                    first_try = False
+                else:
+                    path_valid = True
+                    self.conn.drop_table("file_paths")
+                    self.conn.create_table("file_paths", ["program_name", "path"])
+                    self.conn.insert_values("file_paths", **{"program_name": "ratslap", "path": path})
+            else:
+                exit()
+
+        return path
 
     def set_current_mode(self):
         self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5

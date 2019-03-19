@@ -7,6 +7,14 @@ class PermissionDeniedError(Exception):
     pass
 
 
+class NonValidPathError(Exception):
+    pass
+
+
+class UnknownRatslapError(Exception):
+    pass
+
+
 class Ratslap:
     defaults = OrderedDict({
         "f3": {'name': 'f3', 'color': 'cyan', 'rate': '500', 'dpi1': '500', 'dpi2': '(DEF) 1000', 'dpi3': '1500',
@@ -35,15 +43,10 @@ class Ratslap:
             print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
                   f"{self.path} -p f3\n\n"
                   f"Original error message was:\n{e.args[0]}")
-            try:
-                raise e
-            except PermissionDeniedError:
+            if e.__class__.__name__ == "PermissionDeniedError":
                 print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
                       "to solve the problem.")
-            except Exception:
-                pass
-            finally:
-                exit(-1)
+            exit(-1)
         else:
             output, error = map(lambda f: f.decode("utf-8").splitlines(), [process.stdout, process.stderr])
         if error:
@@ -58,25 +61,38 @@ class Ratslap:
         return opt_list
 
     def run(self, arg, val=None, pretty=False):
-        dash_num = len(arg)
-        if val:
-            process = subprocess.run([self.path, '-' * dash_num + arg, self.mode(val)], capture_output=True)
-        else:
-            process = subprocess.run([self.path, '-' * dash_num + arg], capture_output=True)
-        if process.stderr:
-            stderr = process.stderr.decode("utf-8")
-            permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
-            if permission_denied:
-                raise PermissionDeniedError(permission_denied.group(0))
+        if self.path_is_valid():
+            dash_num = len(arg)
+            if val:
+                process = subprocess.run([self.path, '-' * dash_num + arg, self.mode(val)], capture_output=True)
             else:
-                raise Exception(process.stderr.decode("utf-8"))
+                process = subprocess.run([self.path, '-' * dash_num + arg], capture_output=True)
+            if process.stderr:
+                stderr = process.stderr.decode("utf-8")
+                permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+                if permission_denied:
+                    raise PermissionDeniedError(permission_denied.group(0))
+                else:
+                    raise UnknownRatslapError(process.stderr.decode("utf-8"))
 
-        output = process.stdout.decode("utf-8")
-        if pretty:
-            for line in output.splitlines()[4:]:
-                print(line)
+            output = process.stdout.decode("utf-8")
+            if pretty:
+                for line in output.splitlines()[4:]:
+                    print(line)
+            else:
+                return process
         else:
-            return process
+            raise NonValidPathError
+
+    def path_is_valid(self):
+        try:
+            process = subprocess.run([self.path, '-h'], capture_output=True, timeout=0.1)
+            assert "Linux configuration tool for Logitech mice" in process.stdout.decode("utf-8")
+        except Exception as e:
+            print(e.args)
+            return False
+        else:
+            return True
 
     @staticmethod
     def mode(val):
