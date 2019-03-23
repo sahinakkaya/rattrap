@@ -86,6 +86,7 @@ class Event:
                 self.name = self.keymap[0]
                 if keyname and keyname in self.keymap:
                     self.name = keyname
+                print(keyname)
 
             except TypeError:
                 self.name = None
@@ -148,6 +149,8 @@ class EventList(list):
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
+                if row[0] == "KeyPress":
+                    row.append(row[1])
                 self.append(Event(*row))
             except UndefinedSymbolError as e:
                 print("S" + e.args[0][1:], ", skipping...", sep="")  # TODO: Remove that magic "S"
