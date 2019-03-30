@@ -75,38 +75,48 @@ class Event:
                  'KP_5': 'Num5', 'KP_6': 'Num6', 'KP_7': 'Num7', 'KP_8': 'Num8', 'KP_9': 'Num9', 'KP_Decimal': 'Num.',
                  'Menu': 'Menu'}}
 
-    def __init__(self, event_type, symbol, keycode=None, keyname=None):
+    def __init__(self, event_type, symbol, keycode=None):
         self.type = event_type
         self.symbol = symbol
         self.keycode = keycode
-
-        if keycode:
-            self.keymap = self.find_keymap()
-            try:
-                self.name = self.keymap[0]
-                if keyname and keyname in self.keymap:
-                    self.name = keyname
-                print(keyname)
-
-            except TypeError:
-                self.name = None
-                raise Exception(f"this exception should not be occur at all\n"
-                                f"event type: {event_type} symbol: {symbol} keycode: {keycode} keyname: {keyname}")
-        else:
-            self.name = f"Button {symbol}"
-
-        for type_ in ["modifier", "button", "special", "key"]:
-            if self.is_type(type_):
-                self.symbol_type = type_
-                self.repr = self.all_symbols[f"{type_}s"][self.name]
-                break
-        else:
-            raise UndefinedSymbolError(f"symbol not defined, '{self.name}'")
+        self.name = self.repr = self.symbol_type = self.dual = ""
+        self.keymap = []
+        self.exclude_list = []
+        self.find_name()
+        self.find_type()
+        self.find_dual()
 
         if keycode and self.symbol not in self.keymap:
             print(f"You pressed a key which is not in standard english keyboard layout: {self.symbol}\n"
                   f"Ratslap can't handle non-english characters so it will be considered as '{self.repr}'\n\n")
 
+    def find_name(self):
+        if self.keycode:
+            self.keymap = self.find_keymap()
+            try:
+                self.name = self.keymap[0]
+                if self.symbol in self.keymap:
+                    self.name = self.symbol
+
+            except IndexError:
+                raise UndefinedSymbolError(f"symbol not defined, '{self.symbol}'")
+        else:
+            self.name = f"Button {self.symbol}"
+
+    def find_type(self):
+        found = False
+        while not found:
+            for type_ in ["modifier", "button", "special", "key"]:
+                if self.is_type(type_):
+                    self.symbol_type = type_
+                    self.repr = self.all_symbols[f"{type_}s"][self.name]
+                    found = True
+                    break
+            else:
+                self.exclude_list.append(self.name)
+                self.find_name()
+
+    def find_dual(self):
         if self.is_type("modifier"):
             self.dual = self.repr.replace("Left", "Right").replace("_L", "_R")
             if self.dual == self.repr:
@@ -118,9 +128,10 @@ class Event:
         return self.name in self.all_symbols[f"{type_}s"]
 
     def find_keymap(self):
-        return list(filter(lambda x: "NoSymbol" not in x,
-                           subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)],
-                                          capture_output=True).stdout.decode("utf-8").strip().split()))
+        keymap = filter(lambda x: "NoSymbol" not in x,
+                        subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)],
+                                       capture_output=True).stdout.decode("utf-8").strip().split())
+        return [key for key in keymap if key not in self.exclude_list]
 
     def set_new_name(self, new_name):
         self.name = new_name
@@ -149,11 +160,9 @@ class EventList(list):
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
-                if row[0] == "KeyPress":
-                    row.append(row[1])
                 self.append(Event(*row))
             except UndefinedSymbolError as e:
-                print("S" + e.args[0][1:], ", skipping...", sep="")  # TODO: Remove that magic "S"
+                print(e.args[0].capitalize(), ", skipping...", sep="")
 
     def __contains__(self, item):
         return item in [i.repr for i in self]
