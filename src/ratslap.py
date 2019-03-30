@@ -1,5 +1,6 @@
 import subprocess
 import re
+import sys
 from collections import OrderedDict
 
 
@@ -31,7 +32,33 @@ class Ratslap:
 
     def __init__(self, path_to_ratslap):
         self.path = path_to_ratslap
-        self.options = self._get_options()
+        try:
+            self.test_ratslap()
+        except Exception as e:
+            print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
+                  f"{self.path} -p f3\n\nOriginal error message was:\n{e.args[0]}", file=sys.stderr)
+            if e.__class__.__name__ == "PermissionDeniedError":
+                print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
+                      "to solve the problem.", file=sys.stderr)
+            raise e
+
+        # self.options = self._get_options()
+
+    def test_ratslap(self):
+        try:
+            process = subprocess.run([self.path, '-h'], capture_output=True, timeout=0.1)
+            assert "Linux configuration tool for Logitech mice" in process.stdout.decode("utf-8")
+        except Exception as e:
+            raise NonValidPathError(e)
+        else:
+            process = subprocess.run([self.path, '-p', 'f3'], capture_output=True)
+            if process.stderr:
+                stderr = process.stderr.decode("utf-8")
+                permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+                if permission_denied:
+                    raise PermissionDeniedError(permission_denied.group(0))
+                else:
+                    raise UnknownRatslapError(stderr)
 
     def _get_options(self):
         opt_list = []
@@ -46,7 +73,7 @@ class Ratslap:
             if e.__class__.__name__ == "PermissionDeniedError":
                 print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
                       "to solve the problem.")
-            exit(-1)
+            sys.exit(-1)
         else:
             output, error = map(lambda f: f.decode("utf-8").splitlines(), [process.stdout, process.stderr])
         if error:
