@@ -6,6 +6,7 @@ from src.ratslap import PermissionDeniedError
 # TODO: Add functionality to manually set shortcuts
 # TODO: Make color selection more visual with actual colors
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     try:
