@@ -32,7 +32,6 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.show()
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
-
         except OperationalError:
             ratslap_path = self.get_ratslap_path()
         else:
@@ -40,7 +39,6 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
                 ratslap.Ratslap(ratslap_path)
             except ratslap.NonValidPathError:
                 ratslap_path = self.get_new_path(ratslap_path)
-
         self.ratslap = ratslap.Ratslap(ratslap_path)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
