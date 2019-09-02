@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication
 from json import dump, loads
