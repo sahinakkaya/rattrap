@@ -1,19 +1,21 @@
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QThread
 from json import dump, loads
 import src.ratslap as ratslap
 from src.db_helper import DBHelper, OperationalError
 from src.helper_widgets import CommandEditor
 from UI.ui_rattrap import Ui_Rattrap
+from src.usb_detector import USBDetector
 
 
-class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
+class RattrapWindow(QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
         self.resize(303, 477)
-        self.move(QtWidgets.QApplication.desktop().screen().rect().center() - self.rect().center())
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
         self.current_mode_name = None
 
@@ -29,7 +31,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
         self.set_icons()
         self.mode1.setChecked(True)
         self.conn = DBHelper("settings.db")
-        self.show()
+
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
@@ -40,12 +42,18 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
                 ratslap.Ratslap(ratslap_path)
             except ratslap.NonValidPathError:
                 ratslap_path = self.get_new_path(ratslap_path)
-
         self.ratslap = ratslap.Ratslap(ratslap_path)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
+
+        self.usb_detector = USBDetector()
+        self.thread = QThread()
+        self.connect_signals_and_slots_for_thread()
+        self.thread.start()
+
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
         self.set_current_mode()
+        self.show()
 
     def catch_exceptions(self, function):
         def wrapper(*args, **kwargs):
@@ -60,7 +68,7 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
 
     def get_new_path(self, previous_path):
         text = f"The previous path to ratslap program: '{previous_path}' is unreachable. If you want to " \
-            f"continue using rattrap program please specify the path to 'ratslap'"
+            f"continue using Rattrap please specify the path to 'ratslap'"
         QtWidgets.QMessageBox.information(self, "Unable to reach 'ratslap'", text, QtWidgets.QMessageBox.Ok)
         return self.get_ratslap_path()
 
@@ -155,6 +163,26 @@ class RattrapWindow(QtWidgets.QMainWindow, Ui_Rattrap):
                 exit()
 
         return path
+
+    def connect_signals_and_slots_for_thread(self):
+        self.usb_detector.mouse_state_changed.connect(self.toggle_ui_state)
+        self.usb_detector.moveToThread(self.thread)
+        self.thread.started.connect(self.usb_detector.work)
+
+    def toggle_ui_state(self, is_mouse_online):
+        for radio_btn in self.radio_buttons:
+            if not radio_btn.isChecked():
+                radio_btn.setEnabled(is_mouse_online)
+                
+        for name in self.action_names:
+            button = getattr(self, "button_" + name)
+            button.setEnabled(is_mouse_online)
+
+        if not is_mouse_online:
+            text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
+            self.mouse_offline_message = QtWidgets.QMessageBox.information(self, "Unable to reach mouse",
+                                                                           text,
+                                                                           QtWidgets.QMessageBox.Ok)
 
     def set_current_mode(self):
         self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5

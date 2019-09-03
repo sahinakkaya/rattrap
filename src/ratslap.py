@@ -8,6 +8,10 @@ class PermissionDeniedError(Exception):
     pass
 
 
+class MouseIsOfflineError(Exception):
+    pass
+
+
 class NonValidPathError(Exception):
     pass
 
@@ -40,6 +44,8 @@ class Ratslap:
             if e.__class__.__name__ == "PermissionDeniedError":
                 print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
                       "to solve the problem.", file=sys.stderr)
+            elif e.__class__.__name__ == "MouseIsOfflineError":
+                print("\nPlease plug in your Logitech G300s mouse before running Rattrap.", file=sys.stderr)
             raise e
 
         # self.options = self._get_options()
@@ -55,8 +61,11 @@ class Ratslap:
             if process.stderr:
                 stderr = process.stderr.decode("utf-8")
                 permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+                mouse_is_offline = re.search(r"Failed to find Logitech G300s \(046d:c246\)", stderr)
                 if permission_denied:
                     raise PermissionDeniedError(permission_denied.group(0))
+                elif mouse_is_offline:
+                    raise MouseIsOfflineError(mouse_is_offline.group(0))
                 else:
                     raise UnknownRatslapError(stderr)
 
@@ -97,8 +106,11 @@ class Ratslap:
             if process.stderr:
                 stderr = process.stderr.decode("utf-8")
                 permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+                mouse_is_offline = re.search(r"Failed to find Logitech G300s \(046d:c246\)", stderr)
                 if permission_denied:
                     raise PermissionDeniedError(permission_denied.group(0))
+                elif mouse_is_offline:
+                    raise MouseIsOfflineError(mouse_is_offline.group(0))
                 else:
                     raise UnknownRatslapError(process.stderr.decode("utf-8"))
 
