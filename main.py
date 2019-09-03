@@ -14,6 +14,3 @@ if __name__ == '__main__':
         sys.exit(app.exec_())
     except (PermissionDeniedError, MouseIsOfflineError):
         pass
-    except Exception as e:
-        print(e)
-        raise e
