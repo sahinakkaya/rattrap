@@ -17,6 +17,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
         self.current_mode_name = None
         self.conn = DBHelper("settings.db")
+        self.tray_icon = QtWidgets.QSystemTrayIcon(self)
         self.usb_detector = USBDetector()
         self.thread = QThread()
 
@@ -78,10 +79,16 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             widget.setEnabled(True)
 
         self.set_icons_for_widgets()
+        actions = {"show": "Open Rattrap",
+                   "hide": "Minimize to tray",
+                   "quit": "Quit Rattrap"}
+        self.add_actions_to_tray(actions)
+        self.tray_icon.show()
 
     def setup_ui_logic(self):
         self.bind_functions_to_buttons()
         self.connect_signals_and_slots_of_thread()
+        self.bind_functions_to_actions()
 
     def set_icons_for_widgets(self):
         for name in self.action_names:
@@ -90,6 +97,16 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             icon = QIcon()
             icon.addPixmap(QPixmap(image_path))
             button.setIcon(icon)
+
+        self.tray_icon.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_ComputerIcon))
+
+    def add_actions_to_tray(self, actions):
+        tray_menu = QtWidgets.QMenu(self, objectName="tray_menu")
+        for action_name, desc in actions.items():
+            action = QtWidgets.QAction(desc, self, objectName=action_name)
+            tray_menu.addAction(action)
+
+        self.tray_icon.setContextMenu(tray_menu)
 
     def bind_functions_to_buttons(self):
         for radio_btn in self.radio_buttons:
@@ -102,6 +119,11 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             button = getattr(self, "button_" + name)
             function = getattr(self, "on_" + name)
             button.clicked.connect(function)
+
+    def bind_functions_to_actions(self):
+        for action in self.tray_icon.contextMenu().actions():
+            action_name = action.objectName()
+            action.triggered.connect(getattr(self, action_name))
 
     def on_reset(self):
         for i in range(3, 6):
@@ -223,8 +245,14 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             return self.get_mode(mode)
 
     def closeEvent(self, e):
+        e.ignore()
+        self.hide()
+        self.tray_icon.showMessage("Rattrap", "Rattrap was minimized to tray",
+                                   self.style().standardIcon(QtWidgets.QStyle.SP_ComputerIcon), 1000)
+
+    def quit(self):
         self.conn.close()
-        super(RattrapWindow, self).closeEvent(e)
+        QtWidgets.qApp.quit()
 
 
 if __name__ == '__main__':
