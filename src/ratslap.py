@@ -39,16 +39,8 @@ class Ratslap:
         try:
             self.test_ratslap()
         except Exception as e:
-            print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
-                  f"{self.path} -p f3\n\nOriginal error message was:\n{e.args[0]}", file=sys.stderr)
-            if e.__class__.__name__ == "PermissionDeniedError":
-                print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
-                      "to solve the problem.", file=sys.stderr)
-            elif e.__class__.__name__ == "MouseIsOfflineError":
-                print("\nPlease plug in your Logitech G300s mouse before running Rattrap.", file=sys.stderr)
+            self.print_error_message(e)
             raise e
-
-        # self.options = self._get_options()
 
     def test_ratslap(self):
         try:
@@ -68,33 +60,6 @@ class Ratslap:
                     raise MouseIsOfflineError(mouse_is_offline.group(0))
                 else:
                     raise UnknownRatslapError(stderr)
-
-    def _get_options(self):
-        opt_list = []
-        process = self.run("h")
-        error = output = None
-        try:
-            self.run('p', "f3")
-        except Exception as e:
-            print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
-                  f"{self.path} -p f3\n\n"
-                  f"Original error message was:\n{e.args[0]}")
-            if e.__class__.__name__ == "PermissionDeniedError":
-                print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
-                      "to solve the problem.")
-            sys.exit(-1)
-        else:
-            output, error = map(lambda f: f.decode("utf-8").splitlines(), [process.stdout, process.stderr])
-        if error:
-            raise Exception(process.stderr)
-
-        for line in output:
-            if line.startswith("-"):
-                if line[1] == "-":
-                    opt_list.append(line[2:4])
-                else:
-                    opt_list.append(line[1])
-        return opt_list
 
     def run(self, arg, val=None, pretty=False):
         if self.path_is_valid():
@@ -195,3 +160,13 @@ class Ratslap:
             if line.startswith(f"<{option}>"):
                 raw = line.split(":", 1)[1].strip().replace(" or", ",")
                 return raw.split(", ")
+
+    def print_error_message(self, e):
+        print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
+              f"{self.path} -p f3\n\n"
+              f"Original error message was:\n{e.args[0]}", file=sys.stderr)
+        if e.__class__.__name__ == "PermissionDeniedError":
+            print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
+                  "to solve the problem.", file=sys.stderr)
+        elif e.__class__.__name__ == "MouseIsOfflineError":
+            print("\nPlease plug in your Logitech G300s mouse before running the program.", file=sys.stderr)

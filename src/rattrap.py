@@ -28,10 +28,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.action_names = ["reset", "import", "export", "apply"]
 
         self.bind_functions_to_buttons()
-        self.set_icons()
-        self.mode1.setChecked(True)
-        self.conn = DBHelper("settings.db")
+        self.set_icons_for_action_buttons()
 
+        self.conn = DBHelper("settings.db")
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
@@ -45,6 +44,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.ratslap = ratslap.Ratslap(ratslap_path)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
 
+        self.mode1.setChecked(True)
+        self.set_current_mode()
+
         self.usb_detector = USBDetector()
         self.thread = QThread()
         self.connect_signals_and_slots_for_thread()
@@ -52,7 +54,6 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
-        self.set_current_mode()
         self.show()
 
     def catch_exceptions(self, function):
@@ -72,7 +73,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         QtWidgets.QMessageBox.information(self, "Unable to reach 'ratslap'", text, QtWidgets.QMessageBox.Ok)
         return self.get_ratslap_path()
 
-    def set_icons(self):
+    def set_icons_for_action_buttons(self):
         for name in self.action_names:
             button = getattr(self, "button_" + name)
             image_path = "./images/" + name + "_icon.png"
@@ -173,7 +174,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         for radio_btn in self.radio_buttons:
             if not radio_btn.isChecked():
                 radio_btn.setEnabled(is_mouse_online)
-                
+
         for name in self.action_names:
             button = getattr(self, "button_" + name)
             button.setEnabled(is_mouse_online)
