@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+import PyQt5.QtWidgets as QtWidgets
 from UI.ui_command_editor import Ui_CommandEditor
 from . import event_handler
 

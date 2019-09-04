@@ -14,10 +14,11 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-        self.resize(303, 477)
-        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
         self.current_mode_name = None
+        self.conn = DBHelper("settings.db")
+        self.usb_detector = USBDetector()
+        self.thread = QThread()
 
         # Grouping similar items together.
         self.radio_buttons = [getattr(self, f"mode{i}") for i in "123"]
@@ -27,10 +28,6 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.buttons.extend([getattr(self, f"g{str(i)}") for i in range(4, 10)])
         self.action_names = ["reset", "import", "export", "apply"]
 
-        self.bind_functions_to_buttons()
-        self.set_icons_for_action_buttons()
-
-        self.conn = DBHelper("settings.db")
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
@@ -47,13 +44,13 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.mode1.setChecked(True)
         self.set_current_mode()
 
-        self.usb_detector = USBDetector()
-        self.thread = QThread()
-        self.connect_signals_and_slots_for_thread()
-        self.thread.start()
+        # Enable widgets, set icons for them, create actions
+        self.setup_ui_design()
 
-        for widget in self.buttons + self.radio_buttons + [self.button_apply]:
-            widget.setEnabled(True)
+        # Connect signals and slots
+        self.setup_ui_logic()
+
+        self.thread.start()
         self.show()
 
     def catch_exceptions(self, function):
@@ -73,7 +70,20 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         QtWidgets.QMessageBox.information(self, "Unable to reach 'ratslap'", text, QtWidgets.QMessageBox.Ok)
         return self.get_ratslap_path()
 
-    def set_icons_for_action_buttons(self):
+    def setup_ui_design(self):
+        self.resize(303, 477)
+        self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
+
+        for widget in self.buttons + self.radio_buttons + [self.button_apply]:
+            widget.setEnabled(True)
+
+        self.set_icons_for_widgets()
+
+    def setup_ui_logic(self):
+        self.bind_functions_to_buttons()
+        self.connect_signals_and_slots_of_thread()
+
+    def set_icons_for_widgets(self):
         for name in self.action_names:
             button = getattr(self, "button_" + name)
             image_path = "./images/" + name + "_icon.png"
@@ -90,10 +100,10 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             button.clicked.connect(self.assign_shortcut)
         for name in self.action_names:
             button = getattr(self, "button_" + name)
-            action = getattr(self, name + "_action")
-            button.clicked.connect(action)
+            function = getattr(self, "on_" + name)
+            button.clicked.connect(function)
 
-    def reset_action(self):
+    def on_reset(self):
         for i in range(3, 6):
             msg_box = QtWidgets.QMessageBox
             response = msg_box.question(self, f"Reset F{i}?", f"Do you want to reset profile F{i} to its defaults?",
@@ -110,7 +120,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             elif response == msg_box.NoToAll:
                 break
 
-    def import_action(self):
+    def on_import(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file")
         if path:
             with open(path) as f:
@@ -119,7 +129,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     self.conn.delete_row("profiles", name=f"f{str(i)}")
                     self.set_current_mode()
 
-    def export_action(self):
+    def on_export(self):
         path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Export to a file")
         if path:
             with open(path, "w") as f:
@@ -127,7 +137,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     dump(self.ratslap.parse_mode(i), f)
                     f.write("\n")
 
-    def apply_action(self):
+    def on_apply(self):
         for mode in ["f3", "f4", "f5"]:
             data = self.conn.select("profiles", "*", name=mode).fetchone()
             if data:
@@ -165,7 +175,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
         return path
 
-    def connect_signals_and_slots_for_thread(self):
+    def connect_signals_and_slots_of_thread(self):
         self.usb_detector.mouse_state_changed.connect(self.toggle_ui_state)
         self.usb_detector.moveToThread(self.thread)
         self.thread.started.connect(self.usb_detector.work)
