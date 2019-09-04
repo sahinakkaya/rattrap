@@ -1,7 +1,7 @@
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QThread
+from PyQt5.QtCore import QThread, Qt
 from json import dump, loads
 import src.ratslap as ratslap
 from src.db_helper import DBHelper, OperationalError
@@ -169,9 +169,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
     def assign_shortcut(self):
         button = self.sender()
-        widget = CommandEditor(button, self)
-        x, y = self.pos().x(), self.pos().y()
-        widget.move(x + 30, y + 125)
+        command_editor = CommandEditor(button, self)
+        command_editor.setWindowModality(Qt.ApplicationModal)
+        command_editor.show()
 
     def get_ratslap_path(self):
         path_valid, first_try = False, True

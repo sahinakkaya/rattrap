@@ -8,11 +8,10 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
         super().__init__(parent)
         self.setupUi(self)
         self.button = button
-        self.bind_widgets()
-        self.show()
-
-    def bind_widgets(self):
         self.pushButton.setText(self.button.text())
+        self.setup_ui_logic()
+
+    def setup_ui_logic(self):
         self.pushButton.clicked.connect(self.update_shortcut_label)
         self.buttons_specials_field.setItemText(0, self.button.text())
         self.buttons_specials_field.currentTextChanged.connect(self.update_shortcut_label)
