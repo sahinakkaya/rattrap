@@ -202,20 +202,30 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.usb_detector.moveToThread(self.thread)
         self.thread.started.connect(self.usb_detector.work)
 
-    def toggle_ui_state(self, is_mouse_online):
+    def toggle_ui_state(self, mouse_online):
         for radio_btn in self.radio_buttons:
             if not radio_btn.isChecked():
-                radio_btn.setEnabled(is_mouse_online)
+                radio_btn.setEnabled(mouse_online)
 
         for name in self.action_names:
             button = getattr(self, "button_" + name)
-            button.setEnabled(is_mouse_online)
+            button.setEnabled(mouse_online)
 
-        if not is_mouse_online:
+        mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox,
+                                                   "mouse_offline_message_box")  # type: QtWidgets.QMessageBox
+        if mouse_online:
+            if mouse_offline_message_box is not None and mouse_offline_message_box.isVisible():
+                mouse_offline_message_box.hide()
+        else:
             text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
-            self.mouse_offline_message = QtWidgets.QMessageBox.information(self, "Unable to reach mouse",
-                                                                           text,
-                                                                           QtWidgets.QMessageBox.Ok)
+            if mouse_offline_message_box is not None:
+                mouse_offline_message_box.show()
+            else:
+                QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
+                                      "Unable to reach mouse",
+                                      text, QtWidgets.QMessageBox.Ok,
+                                      self,
+                                      objectName="mouse_offline_message_box").show()
 
     def set_current_mode(self):
         self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5

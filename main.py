@@ -6,6 +6,7 @@ from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 # TODO: Add functionality to manually set shortcuts
 # TODO: Make color selection more visual with actual colors
 # FIXME: Switch to last edited mode when mouse is replugged
+# FIXME: Enable ok button in command editor when entered "assign manually" mode
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

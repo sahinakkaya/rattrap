@@ -30,7 +30,7 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
             if len(shortcut.string) > 0:
                 self.current_shortcut.setText(shortcut.string)
                 self.pushButton.setText(shortcut.string)
-                self.btn_ok.setEnabled(shortcut.valid)  # FIXME: Also check if user is trying to assign manually
+                self.btn_ok.setEnabled(shortcut.valid)
                 self.pushButton.setStyleSheet("")
                 if not shortcut.valid:
                     self.pushButton.setStyleSheet("background-color: rgb(255, 0, 4);")
