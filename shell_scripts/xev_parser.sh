@@ -7,6 +7,12 @@
 # Don't panic, it is tested. It does not harm your computer but your brain cells :D
 
 
+if [[ "$#" -eq 0 ]]
+    then
+        geometry="200x200+860+440"
+else
+        geometry=$1
+fi
 tmp_file=$(mktemp /tmp/xev_output.XXXXXX)
 
 awk -F'[ )]+' -v RS='' '  BEGIN {
@@ -19,7 +25,7 @@ awk -F'[ )]+' -v RS='' '  BEGIN {
                                 if (c>0) {
                                     exit 0
                                 }
-                          } '  < <(xev) >> ${tmp_file};
+                          } '  < <(xev -geometry ${geometry}) >> ${tmp_file};
 
 
 awk -F'[ )]+' '             BEGIN {

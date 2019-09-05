@@ -22,8 +22,10 @@ class CommandEditor(QtWidgets.QDialog, Ui_CommandEditor):
     def update_shortcut_label(self):
         parent = self.parent()
         if self.sender().objectName() == "pushButton":
+            x, y, width, height = self.geometry().getRect()
+            geometry = f"{width}x{height}+{x}+{y}"
             e = event_handler.EventList(parent.ratslap.parse_mode(parent.current_mode_name))
-            e.get_events()
+            e.get_events(geometry)
             shortcut = e.create_shortcut_from_events()
             if len(shortcut.string) > 0:
                 self.current_shortcut.setText(shortcut.string)

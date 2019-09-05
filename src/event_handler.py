@@ -155,8 +155,8 @@ class EventList(list):
         if not self.__contains__(event):
             super(EventList, self).append(event)
 
-    def get_events(self):
-        process = subprocess.run("./shell_scripts/xev_parser.sh", capture_output=True)
+    def get_events(self, geometry=""):
+        process = subprocess.run(["./shell_scripts/xev_parser.sh", geometry], capture_output=True)
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
