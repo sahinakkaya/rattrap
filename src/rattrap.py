@@ -98,7 +98,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             icon.addPixmap(QPixmap(image_path))
             button.setIcon(icon)
 
-        self.tray_icon.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_ComputerIcon))
+        app_icon = QIcon("./images/logo.png")
+        self.tray_icon.setIcon(app_icon)
+        self.setWindowIcon(app_icon)
 
     def add_actions_to_tray(self, actions):
         tray_menu = QtWidgets.QMenu(self, objectName="tray_menu")
@@ -258,7 +260,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         e.ignore()
         self.hide()
         self.tray_icon.showMessage("Rattrap", "Rattrap was minimized to tray",
-                                   self.style().standardIcon(QtWidgets.QStyle.SP_ComputerIcon), 1000)
+                                   QIcon("./images/logo.png"), 1000)
 
     def quit(self):
         self.conn.close()
