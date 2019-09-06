@@ -269,11 +269,3 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def quit(self):
         self.conn.close()
         QtWidgets.qApp.quit()
-
-
-if __name__ == '__main__':
-    import sys
-
-    app = QApplication(sys.argv)
-    main_window = RattrapWindow()
-    sys.exit(app.exec_())
