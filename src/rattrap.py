@@ -220,7 +220,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox,
                                                    "mouse_offline_message_box")  # type: QtWidgets.QMessageBox
         if mouse_online:
-            if mouse_offline_message_box is not None and mouse_offline_message_box.isVisible():
+            if mouse_offline_message_box is not None:
                 mouse_offline_message_box.hide()
         else:
             text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
