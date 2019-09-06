@@ -95,9 +95,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.bind_functions_to_actions()
 
     def set_icons_for_widgets(self):
-        for name in self.action_names:
-            button = getattr(self, "button_" + name)
-            image_path = self.get_path("images", name + "_icon.png")
+        for action_name in self.action_names:
+            button = getattr(self, f"button_{action_name}")
+            image_path = self.get_path("images", f"{action_name}_icon.png")
             icon = QIcon()
             icon.addPixmap(QPixmap(image_path))
             button.setIcon(icon)
@@ -122,8 +122,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         for button in self.buttons:
             button.clicked.connect(self.assign_shortcut)
         for name in self.action_names:
-            button = getattr(self, "button_" + name)
-            function = getattr(self, "on_" + name)
+            button = getattr(self, f"button_{name}")
+            function = getattr(self, f"on_{name}")
             button.clicked.connect(function)
 
     def bind_functions_to_actions(self):
@@ -214,7 +214,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 radio_btn.setEnabled(mouse_online)
 
         for name in self.action_names:
-            button = getattr(self, "button_" + name)
+            button = getattr(self, f"button_{name}")
             button.setEnabled(mouse_online)
 
         mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox,
