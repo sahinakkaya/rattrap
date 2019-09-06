@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt5.QtWidgets import QApplication
 from src.rattrap import RattrapWindow
 from src.ratslap import PermissionDeniedError, MouseIsOfflineError
@@ -10,8 +11,9 @@ from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    script_dir = os.path.dirname(__file__)
     try:
-        main_window = RattrapWindow()
+        main_window = RattrapWindow(script_dir)
         sys.exit(app.exec_())
     except (PermissionDeniedError, MouseIsOfflineError):
         pass

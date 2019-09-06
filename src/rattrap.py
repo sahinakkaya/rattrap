@@ -1,3 +1,4 @@
+import os
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -11,12 +12,12 @@ from src.usb_detector import USBDetector
 
 
 class RattrapWindow(QMainWindow, Ui_Rattrap):
-    def __init__(self):
+    def __init__(self, path):
         super().__init__()
         self.setupUi(self)
-
+        self.path = path
         self.current_mode_name = None
-        self.conn = DBHelper("settings.db")
+        self.conn = DBHelper(self.get_path("settings.db"))
         self.tray_icon = QtWidgets.QSystemTrayIcon(self)
         self.usb_detector = USBDetector()
         self.thread = QThread()
@@ -53,6 +54,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
         self.thread.start()
         self.show()
+
+    def get_path(self, *p):
+        return os.path.join(self.path, *p)
 
     def catch_exceptions(self, function):
         def wrapper(*args, **kwargs):
@@ -93,12 +97,12 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def set_icons_for_widgets(self):
         for name in self.action_names:
             button = getattr(self, "button_" + name)
-            image_path = "./images/" + name + "_icon.png"
+            image_path = self.get_path("images", name + "_icon.png")
             icon = QIcon()
             icon.addPixmap(QPixmap(image_path))
             button.setIcon(icon)
 
-        app_icon = QIcon("./images/logo.png")
+        app_icon = QIcon(self.get_path("images", "logo.png"))
         self.tray_icon.setIcon(app_icon)
         self.setWindowIcon(app_icon)
 
@@ -260,7 +264,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         e.ignore()
         self.hide()
         self.tray_icon.showMessage("Rattrap", "Rattrap was minimized to tray",
-                                   QIcon("./images/logo.png"), 1000)
+                                   QIcon(self.get_path("images", "logo.png")), 1000)
 
     def quit(self):
         self.conn.close()
