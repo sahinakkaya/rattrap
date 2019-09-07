@@ -22,17 +22,18 @@ class UnknownRatslapError(Exception):
 
 class Ratslap:
     defaults = OrderedDict({
-        "f3": {'name': 'f3', 'color': 'cyan', 'rate': '500', 'dpi1': '500', 'dpi2': '(DEF) 1000', 'dpi3': '1500',
-               'dpi4': '2500', 'dpi_shift': 'NOT SET', 'left': 'Button1', 'right': 'Button2', 'middle': 'Button3',
-               'g4': 'Button6', 'g5': 'Button7', 'g6': 'LeftCtrl +', 'g7': 'LeftAlt +', 'g8': 'ModeSwitch',
-               'g9': 'DPICycle'},
-        "f4": {'name': 'f4', 'color': 'white', 'rate': '1000', 'dpi1': '500', 'dpi2': '(DEF) 1000', 'dpi3': '1500',
-               'dpi4': '2500', 'dpi_shift': '500', 'left': 'Button1', 'right': 'Button2', 'middle': 'Button3',
-               'g4': 'Button6', 'g5': 'Button7', 'g6': 'DPIDown', 'g7': 'DPIUp', 'g8': 'ModeSwitch', 'g9': 'DPIShift'},
-        "f5": {'name': 'f5', 'color': 'blue', 'rate': '500', 'dpi1': '(DEF) 1000', 'dpi2': '1000', 'dpi3': '1000',
-               'dpi4': '1000', 'dpi_shift': 'NOT SET', 'left': 'Button1', 'right': 'Button2', 'middle': 'Button3',
-               'g4': 'Button6', 'g5': 'Button7', 'g6': 'LeftCtrl + C', 'g7': 'LeftCtrl + V', 'g8': 'ModeSwitch',
-               'g9': 'LeftCtrl + X'}})
+        "f3": {'name': 'f3', 'color': 'cyan', 'rate': '500', 'dpi1': '500', 'dpi2': '(DEF) 1000',
+               'dpi3': '1500', 'dpi4': '2500', 'dpi_shift': 'NOT SET', 'left': 'Button1', 'right': 'Button2',
+               'middle': 'Button3', 'g4': 'Button6', 'g5': 'Button7', 'g6': 'LeftCtrl +', 'g7': 'LeftAlt +',
+               'g8': 'ModeSwitch', 'g9': 'DPICycle'},
+        "f4": {'name': 'f4', 'color': 'white', 'rate': '1000', 'dpi1': '500', 'dpi2': '(DEF) 1000',
+               'dpi3': '1500', 'dpi4': '2500', 'dpi_shift': '500', 'left': 'Button1', 'right': 'Button2',
+               'middle': 'Button3', 'g4': 'Button6', 'g5': 'Button7', 'g6': 'DPIDown', 'g7': 'DPIUp',
+               'g8': 'ModeSwitch', 'g9': 'DPIShift'},
+        "f5": {'name': 'f5', 'color': 'blue', 'rate': '500', 'dpi1': '(DEF) 1000', 'dpi2': '1000',
+               'dpi3': '1000', 'dpi4': '1000', 'dpi_shift': 'NOT SET', 'left': 'Button1', 'right': 'Button2',
+               'middle': 'Button3', 'g4': 'Button6', 'g5': 'Button7', 'g6': 'LeftCtrl + C',
+               'g7': 'LeftCtrl + V', 'g8': 'ModeSwitch', 'g9': 'LeftCtrl + X'}})
 
     def __init__(self, path_to_ratslap):
         self.path = path_to_ratslap
@@ -51,33 +52,30 @@ class Ratslap:
         else:
             process = subprocess.run([self.path, '-p', 'f3'], capture_output=True)
             if process.stderr:
-                stderr = process.stderr.decode("utf-8")
-                permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
-                mouse_is_offline = re.search(r"Failed to find Logitech G300s \(046d:c246\)", stderr)
-                if permission_denied:
-                    raise PermissionDeniedError(permission_denied.group(0))
-                elif mouse_is_offline:
-                    raise MouseIsOfflineError(mouse_is_offline.group(0))
-                else:
-                    raise UnknownRatslapError(stderr)
+                self.handle_stderr(process.stderr)
+
+    @staticmethod
+    def handle_stderr(stderr):
+        stderr = stderr.decode("utf-8")
+        permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
+        mouse_is_offline = re.search(r"Failed to find Logitech G300s \(046d:c246\)", stderr)
+        if permission_denied:
+            raise PermissionDeniedError(permission_denied.group(0))
+        elif mouse_is_offline:
+            raise MouseIsOfflineError(mouse_is_offline.group(0))
+        else:
+            raise UnknownRatslapError(stderr)
 
     def run(self, arg, val=None, pretty=False):
         if self.path_is_valid():
             dash_num = len(arg)
             if val:
-                process = subprocess.run([self.path, '-' * dash_num + arg, self.mode(val)], capture_output=True)
+                process = subprocess.run([self.path, '-' * dash_num + arg, self.mode(val)],
+                                         capture_output=True)
             else:
                 process = subprocess.run([self.path, '-' * dash_num + arg], capture_output=True)
             if process.stderr:
-                stderr = process.stderr.decode("utf-8")
-                permission_denied = re.search(r"libusb couldn't open USB device .*: Permission denied", stderr)
-                mouse_is_offline = re.search(r"Failed to find Logitech G300s \(046d:c246\)", stderr)
-                if permission_denied:
-                    raise PermissionDeniedError(permission_denied.group(0))
-                elif mouse_is_offline:
-                    raise MouseIsOfflineError(mouse_is_offline.group(0))
-                else:
-                    raise UnknownRatslapError(process.stderr.decode("utf-8"))
+                self.handle_stderr(process.stderr)
 
             output = process.stdout.decode("utf-8")
             if pretty:
@@ -119,9 +117,10 @@ class Ratslap:
         output = self.run("p", mode_index).stdout.decode("utf-8")
         mode = OrderedDict({"name": self.mode(mode_index)})
         normalized_options = {'Colour': 'color', 'Report Rate': 'rate', 'DPI #1': 'dpi1', 'DPI #2': 'dpi2',
-                              'DPI #3': 'dpi3', 'DPI #4': 'dpi4', 'DPI Shift': 'dpi_shift', 'Left Click (But1)': 'left',
-                              'Right Click (But2)': 'right', 'Middle Click (But3)': 'middle', 'G4': 'g4', 'G5': 'g5',
-                              'G6': 'g6', 'G7': 'g7', 'G8': 'g8', 'G9': 'g9'}
+                              'DPI #3': 'dpi3', 'DPI #4': 'dpi4', 'DPI Shift': 'dpi_shift',
+                              'Left Click (But1)': 'left', 'Right Click (But2)': 'right',
+                              'Middle Click (But3)': 'middle', 'G4': 'g4', 'G5': 'g5', 'G6': 'g6', 'G7': 'g7',
+                              'G8': 'g8', 'G9': 'g9'}
         for line in output.splitlines()[7:-1]:
             option, value = map(str.strip, line.split(":", 1))
             mode[normalized_options[option]] = value
@@ -130,10 +129,11 @@ class Ratslap:
 
     def modify(self, mode_index=3, **kwargs):
         distinct_options = self.get_difference(mode_index, **kwargs)
-        distinct_options.pop("dpi_shift", None)  # Don't know how I even managed to changed my dpi shift value
+        distinct_options.pop("dpi_shift", None)  # Don't know how I even managed to change my dpi shift value
         if distinct_options:
             command = f"--modify {self.mode(mode_index)} "
-            options = " ".join([f"--{key} {''.join(distinct_options[key].split())}" for key in distinct_options])
+            options = " ".join(
+                [f"--{key} {''.join(distinct_options[key].split())}" for key in distinct_options])
             subprocess.run([self.path] + (command + options).split())
 
     def get_difference(self, mode, **kwargs):

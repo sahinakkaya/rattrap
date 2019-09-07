@@ -36,7 +36,7 @@ class DBHelper:
                        f"VALUES ({', '.join([':' + key for key in kwargs])})", kwargs)
         self.commit()
 
-    def delete_row(self,table_name, **conditions):
+    def delete_row(self, table_name, **conditions):
         self.c.execute(f"DELETE FROM {table_name} "
                        f"WHERE {' AND '.join([key + ' = ' + repr(conditions[key]) for key in conditions])}")
 

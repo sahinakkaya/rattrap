@@ -133,7 +133,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def on_reset(self):
         for i in range(3, 6):
             msg_box = QtWidgets.QMessageBox
-            response = msg_box.question(self, f"Reset F{i}?", f"Do you want to reset profile F{i} to its defaults?",
+            title = f"Reset F{i}?"
+            text = f"Do you want to reset profile F{i} to its defaults?"
+            response = msg_box.question(self, title, text,
                                         msg_box.No | msg_box.NoToAll | msg_box.YesToAll | msg_box.Yes)
             if response == msg_box.YesToAll:
                 self.ratslap.reset("all")
@@ -183,10 +185,11 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         path = None
         while not path_valid:
             if not first_try:
-                QtWidgets.QMessageBox.information(self, "Non valid path",
-                                                  "The path you specified is not valid. Try again",
-                                                  QtWidgets.QMessageBox.Ok)
-            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select the path to the 'ratslap' program...")
+                title = "Non valid path"
+                text = "The path you specified is not valid. Try again"
+                QtWidgets.QMessageBox.information(self, title, text, QtWidgets.QMessageBox.Ok)
+            caption = "Select the path to the 'ratslap' program..."
+            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption)
             if path:
                 try:
                     ratslap.Ratslap(path)
@@ -233,7 +236,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                                       objectName="mouse_offline_message_box").show()
 
     def set_current_mode(self):
-        self.current_mode_name = "f" + str([i.isChecked() for i in self.radio_buttons].index(True) + 3)  # f3, f4 or f5
+        current_mode_index = [i.isChecked() for i in self.radio_buttons].index(True) + 3
+        self.current_mode_name = "f" + str(current_mode_index)  # f3, f4 or f5
         self.ratslap.select_mode(self.current_mode_name)
         current_mode = self.get_mode(self.current_mode_name)
 

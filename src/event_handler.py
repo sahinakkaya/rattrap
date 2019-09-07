@@ -49,30 +49,33 @@ class Shortcut(str):
 
 class Event:
     all_symbols = {
-        'modifiers': {'Shift_L': 'LeftShift', 'Alt_L': 'LeftAlt', 'Super_L': 'Super_L', 'Control_L': 'LeftCtrl',
-                      'Control_R': 'RightCtrl', 'Shift_R': 'RightShift', 'Alt_R': 'RightAlt', 'Super_R': 'Super_R'},
-        'buttons': {'Button 1': 'Button1', 'Button 3': 'Button2', 'Button 2': 'Button3', 'Button 8': 'Button6',
-                    'Button 9': 'Button7', 'Button 10': 'Button8', 'Button 11': 'Button9', 'Button 12': 'Button10',
-                    'Button 13': 'Button11'},
-        'specials': {'DPIUp': 'DPIUp', 'DPIDown': 'DPIDown', 'DPICycle': 'DPICycle', 'ModeSwitch': 'ModeSwitch',
-                     'DPIShift': 'DPIShift', 'DPIDefault': 'DPIDefault'},
-        'keys': {'Return': 'Enter', 'Escape': 'Escape', 'BackSpace': 'Backspace', 'Tab': 'Tab', 'space': 'Space',
-                 'equal': '=', 'bracketleft': '[', 'bracketright': ']', 'backslash': '\\', 'semicolon': ';',
-                 'minus': '-', 'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D', 'e': 'e', 'f': 'F', 'g': 'G', 'h': 'H', 'i': 'I',
-                 'j': 'J', 'k': 'K', 'l': 'L', 'm': 'M', 'n': 'N', 'o': 'O', 'p': 'P', 'q': 'Q', 'r': 'R', 's': 'S',
-                 't': 'T', 'u': 'U', 'v': 'V', 'w': 'W', 'x': 'X', 'y': 'Y', 'z': 'Z', 'A': 'A', 'B': 'B', 'C': 'C',
-                 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G', 'H': 'H', 'I': 'I', 'J': 'J', 'K': 'K', 'L': 'L', 'M': 'M',
-                 'N': 'N', 'O': 'O', 'P': 'P', 'Q': 'Q', 'R': 'R', 'S': 'S', 'T': 'T', 'U': 'U', 'V': 'V', 'W': 'W',
-                 'X': 'X', 'Y': 'Y', 'Z': 'Z', '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6',
-                 '7': '7', '8': '8', '9': '9', 'F1': 'F1', 'F2': 'F2', 'F3': 'F3', 'F4': 'F4', 'F5': 'F5', 'F6': 'F6',
-                 'F7': 'F7', 'F8': 'F8', 'F9': 'F9', 'F10': 'F10', 'F11': 'F11', 'F12': 'F12', 'apostrophe': "'",
-                 'grave': '`', 'comma': ',', 'period': '.', 'slash': '/', 'Pause': 'Pause', 'KP_Insert': 'Insert',
-                 'Home': 'Home', 'Delete': 'Delete', 'Right': 'Right', 'Left': 'Left', 'Down': 'Down',
-                 'Print': 'PrintScreen', 'KP_Prior': 'PageUp', 'KP_Next': 'PageDown', 'KP_Home': 'Home',
-                 'KP_End': 'End', 'Up': 'Up', 'Num_Lock': 'NumLock', 'Insert': 'Insert', 'Scroll_Lock': 'ScrollLock',
-                 'KP_Divide': 'Num/', 'KP_Multiply': 'Num*', 'KP_Subtract': 'Num-', 'KP_Add': 'Num+',
-                 'KP_Enter': 'NumEnter', 'KP_0': 'Num0', 'KP_1': 'Num1', 'KP_2': 'Num2', 'KP_3': 'Num3', 'KP_4': 'Num4',
-                 'KP_5': 'Num5', 'KP_6': 'Num6', 'KP_7': 'Num7', 'KP_8': 'Num8', 'KP_9': 'Num9', 'KP_Decimal': 'Num.',
+        'modifiers': {'Shift_L': 'LeftShift', 'Alt_L': 'LeftAlt', 'Super_L': 'Super_L',
+                      'Control_L': 'LeftCtrl', 'Control_R': 'RightCtrl', 'Shift_R': 'RightShift',
+                      'Alt_R': 'RightAlt', 'Super_R': 'Super_R'},
+        'buttons': {'Button 1': 'Button1', 'Button 3': 'Button2', 'Button 2': 'Button3',
+                    'Button 8': 'Button6', 'Button 9': 'Button7', 'Button 10': 'Button8',
+                    'Button 11': 'Button9', 'Button 12': 'Button10', 'Button 13': 'Button11'},
+        'specials': {'DPIUp': 'DPIUp', 'DPIDown': 'DPIDown', 'DPICycle': 'DPICycle',
+                     'ModeSwitch': 'ModeSwitch', 'DPIShift': 'DPIShift', 'DPIDefault': 'DPIDefault'},
+        'keys': {'Return': 'Enter', 'Escape': 'Escape', 'BackSpace': 'Backspace', 'Tab': 'Tab',
+                 'space': 'Space', 'equal': '=', 'bracketleft': '[', 'bracketright': ']', 'backslash': '\\',
+                 'semicolon': ';', 'minus': '-', 'a': 'A', 'b': 'B', 'c': 'C', 'd': 'D', 'e': 'e', 'f': 'F',
+                 'g': 'G', 'h': 'H', 'i': 'I', 'j': 'J', 'k': 'K', 'l': 'L', 'm': 'M', 'n': 'N', 'o': 'O',
+                 'p': 'P', 'q': 'Q', 'r': 'R', 's': 'S', 't': 'T', 'u': 'U', 'v': 'V', 'w': 'W', 'x': 'X',
+                 'y': 'Y', 'z': 'Z', 'A': 'A', 'B': 'B', 'C': 'C', 'D': 'D', 'E': 'E', 'F': 'F', 'G': 'G',
+                 'H': 'H', 'I': 'I', 'J': 'J', 'K': 'K', 'L': 'L', 'M': 'M', 'N': 'N', 'O': 'O', 'P': 'P',
+                 'Q': 'Q', 'R': 'R', 'S': 'S', 'T': 'T', 'U': 'U', 'V': 'V', 'W': 'W', 'X': 'X', 'Y': 'Y',
+                 'Z': 'Z', '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6', '7': '7',
+                 '8': '8', '9': '9', 'F1': 'F1', 'F2': 'F2', 'F3': 'F3', 'F4': 'F4', 'F5': 'F5', 'F6': 'F6',
+                 'F7': 'F7', 'F8': 'F8', 'F9': 'F9', 'F10': 'F10', 'F11': 'F11', 'F12': 'F12',
+                 'apostrophe': "'", 'grave': '`', 'comma': ',', 'period': '.', 'slash': '/', 'Pause': 'Pause',
+                 'KP_Insert': 'Insert', 'Home': 'Home', 'Delete': 'Delete', 'Right': 'Right', 'Left': 'Left',
+                 'Down': 'Down', 'Print': 'PrintScreen', 'KP_Prior': 'PageUp', 'KP_Next': 'PageDown',
+                 'KP_Home': 'Home', 'KP_End': 'End', 'Up': 'Up', 'Num_Lock': 'NumLock', 'Insert': 'Insert',
+                 'Scroll_Lock': 'ScrollLock', 'KP_Divide': 'Num/', 'KP_Multiply': 'Num*',
+                 'KP_Subtract': 'Num-', 'KP_Add': 'Num+', 'KP_Enter': 'NumEnter', 'KP_0': 'Num0',
+                 'KP_1': 'Num1', 'KP_2': 'Num2', 'KP_3': 'Num3', 'KP_4': 'Num4', 'KP_5': 'Num5',
+                 'KP_6': 'Num6', 'KP_7': 'Num7', 'KP_8': 'Num8', 'KP_9': 'Num9', 'KP_Decimal': 'Num.',
                  'Menu': 'Menu'}}
 
     def __init__(self, event_type, symbol, keycode=None):
@@ -149,7 +152,8 @@ class Event:
 class EventList(list):
     def __init__(self, mouse_profile, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.mouse_profile = {i: list(map(str.strip, filter(None, j.split(" +")))) for i, j in mouse_profile.items()}
+        self.mouse_profile = {i: list(map(str.strip,
+                                          filter(None, j.split(" +")))) for i, j in mouse_profile.items()}
 
     def append(self, event):
         if not self.__contains__(event):
@@ -173,8 +177,8 @@ class EventList(list):
     def create_shortcut_from_events(self):
         shortcut = Shortcut()
 
-        xev_transitions_for_buttons = {'left': '1', 'right': '3', 'middle': '2', 'g4': '8', 'g5': '9', 'g6': '10',
-                                       'g7': '11', 'g8': '12', 'g9': '13'}
+        xev_transitions_for_buttons = {'left': '1', 'right': '3', 'middle': '2', 'g4': '8', 'g5': '9',
+                                       'g6': '10', 'g7': '11', 'g8': '12', 'g9': '13'}
 
         while True:
             try:
