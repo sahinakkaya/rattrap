@@ -48,6 +48,7 @@ class SingleQApplication(QtWidgets.QApplication):
 
     def send_message(self, message):
         if self.is_running():
+            print(f"{self._name} is already running")
             socket = QtNetwork.QLocalSocket(self)
             socket.connectToServer(self._name, QtCore.QIODevice.WriteOnly)
             if not socket.waitForConnected(self._timeout):
