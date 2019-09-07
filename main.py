@@ -1,6 +1,6 @@
 import sys
 import os
-from PyQt5.QtWidgets import QApplication
+from src.single_qapplication import SingleQApplication
 from src.rattrap import RattrapWindow
 from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 
@@ -10,10 +10,15 @@ from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 # FIXME: Enable ok button in command editor when entered "assign manually" mode
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app_name = "Rattrap"
     script_dir = os.path.dirname(__file__)
+    app = SingleQApplication(sys.argv, app_name)
+
     try:
         main_window = RattrapWindow(script_dir)
-        sys.exit(app.exec_())
     except (PermissionDeniedError, MouseIsOfflineError):
         pass
+    else:
+        app.visibility_changed.connect(main_window.setVisible)
+        app.send_message(app.visibility)
+        sys.exit(app.exec_())

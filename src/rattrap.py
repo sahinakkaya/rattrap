@@ -53,7 +53,6 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.setup_ui_logic()
 
         self.thread.start()
-        self.show()
 
     def get_path(self, *p):
         return os.path.join(self.path, *p)
