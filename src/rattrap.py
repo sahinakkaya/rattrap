@@ -161,7 +161,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def on_export(self):
         path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Export to a file")
         if path:
-            with open(path, "w") as f:
+            with open(f"{path}.rat", "w") as f:
                 for i in range(3, 6):
                     dump(self.ratslap.parse_mode(i), f)
                     f.write("\n")
