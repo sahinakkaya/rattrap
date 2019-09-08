@@ -35,13 +35,14 @@ class Ratslap:
                'middle': 'Button3', 'g4': 'Button6', 'g5': 'Button7', 'g6': 'LeftCtrl + C',
                'g7': 'LeftCtrl + V', 'g8': 'ModeSwitch', 'g9': 'LeftCtrl + X'}})
 
-    def __init__(self, path_to_ratslap):
+    def __init__(self, path_to_ratslap, skip_test=False):
         self.path = path_to_ratslap
-        try:
-            self.test_ratslap()
-        except Exception as e:
-            self.print_error_message(e)
-            raise e
+        if not skip_test:
+            try:
+                self.test_ratslap()
+            except Exception as e:
+                self.print_error_message(e)
+                raise e
 
     def test_ratslap(self):
         try:

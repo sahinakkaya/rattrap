@@ -30,9 +30,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.buttons.extend([getattr(self, f"g{str(i)}") for i in range(4, 10)])
         self.action_names = ["reset", "import", "export", "apply"]
 
+        skip_test_for_ratslap = False
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
-
         except OperationalError:
             ratslap_path = self.get_ratslap_path()
         else:
@@ -40,11 +40,17 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 ratslap.Ratslap(ratslap_path)
             except ratslap.NonValidPathError:
                 ratslap_path = self.get_new_path(ratslap_path)
-        self.ratslap = ratslap.Ratslap(ratslap_path)
-        setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
+            except ratslap.MouseIsOfflineError:
+                skip_test_for_ratslap = True
 
+        self.ratslap = ratslap.Ratslap(ratslap_path, skip_test_for_ratslap)
+        setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
         self.mode1.setChecked(True)
-        self.set_current_mode()
+        mouse_offline = skip_test_for_ratslap
+        self.current_mode_is_set = False
+        if not mouse_offline:
+            self.set_current_mode()
+            self.current_mode_is_set = True
 
         # Enable widgets, set icons for them, create actions
         self.setup_ui_design()
@@ -222,6 +228,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox,
                                                    "mouse_offline_message_box")  # type: QtWidgets.QMessageBox
         if mouse_online:
+            if not self.current_mode_is_set:
+                self.set_current_mode()
+                self.current_mode_is_set = True
             if mouse_offline_message_box is not None:
                 mouse_offline_message_box.hide()
             if self.isHidden():
@@ -233,12 +242,15 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     mouse_offline_message_box.show()
                 else:
                     QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
-                                          "Unable to reach mouse",
+                                          "Failed to find Logitech G300s",
                                           text, QtWidgets.QMessageBox.Ok,
                                           self,
                                           objectName="mouse_offline_message_box").show()
             else:
-                self.show_tray_message("Mouse disconnected")
+                if self.current_mode_is_set:
+                    self.show_tray_message("Mouse disconnected")
+                else:
+                    self.show_tray_message("Failed to find Logitech G300s")
 
     def set_current_mode(self):
         current_mode_index = [i.isChecked() for i in self.radio_buttons].index(True) + 3
