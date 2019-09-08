@@ -8,6 +8,7 @@ class USBDetector(QObject):
 
     def __init__(self):
         super(USBDetector, self).__init__()
+        self.mouse_online = False
         self.context = pyudev.Context()
         self.monitor = pyudev.Monitor.from_netlink(self.context)
         self.monitor.filter_by(subsystem="usb")
@@ -19,7 +20,7 @@ class USBDetector(QObject):
 
         self.monitor.start()
         for device in iter(self.monitor.poll, None):
-            if device.action in ("add", "remove"):
+            if device.action in ("bind", "remove"):
                 if self.is_mouse_state_changed():
                     self.mouse_online = not self.mouse_online
                     self.emit_signal()

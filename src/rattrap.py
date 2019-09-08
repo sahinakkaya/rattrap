@@ -4,6 +4,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QThread, Qt
 from json import dump, loads
+from time import sleep
 import src.ratslap as ratslap
 from src.db_helper import DBHelper, OperationalError
 from src.helper_widgets import CommandEditor
@@ -70,6 +71,12 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             except ratslap.NonValidPathError:
                 self.ratslap.path = self.get_new_path(self.ratslap.path)
                 result = function(*args, **kwargs)
+            except ratslap.UnknownRatslapError as e:
+                # Maybe it's because computers are fast
+                sleep(0.1)  # Let's wait a bit
+                result = function(*args, **kwargs)
+                print(f"An error was occurred but it's gone after 0.1 seconds; "
+                      f"time heals everything :) \nIf you are curious, the error was:\n{e}")
             return result
 
         return wrapper
