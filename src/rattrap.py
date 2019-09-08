@@ -224,16 +224,21 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         if mouse_online:
             if mouse_offline_message_box is not None:
                 mouse_offline_message_box.hide()
+            if self.isHidden():
+                self.show_tray_message("Mouse connected")
         else:
-            text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
-            if mouse_offline_message_box is not None:
-                mouse_offline_message_box.show()
+            if self.isVisible():
+                text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
+                if mouse_offline_message_box is not None:
+                    mouse_offline_message_box.show()
+                else:
+                    QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
+                                          "Unable to reach mouse",
+                                          text, QtWidgets.QMessageBox.Ok,
+                                          self,
+                                          objectName="mouse_offline_message_box").show()
             else:
-                QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
-                                      "Unable to reach mouse",
-                                      text, QtWidgets.QMessageBox.Ok,
-                                      self,
-                                      objectName="mouse_offline_message_box").show()
+                self.show_tray_message("Mouse disconnected")
 
     def set_current_mode(self):
         current_mode_index = [i.isChecked() for i in self.radio_buttons].index(True) + 3
@@ -263,11 +268,13 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             self.conn.insert_values("profiles", **profile)
             return self.get_mode(mode)
 
+    def show_tray_message(self, message, title="Rattrap"):
+        self.tray_icon.showMessage(title, message, QIcon(self.get_path("images", "logo.png")), 1000)
+
     def closeEvent(self, e):
         e.ignore()
         self.hide()
-        self.tray_icon.showMessage("Rattrap", "Rattrap was minimized to tray",
-                                   QIcon(self.get_path("images", "logo.png")), 1000)
+        self.show_tray_message("Rattrap was minimized to tray")
 
     def quit(self):
         self.conn.close()
