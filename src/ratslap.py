@@ -2,6 +2,7 @@ import subprocess
 import re
 import sys
 from collections import OrderedDict
+from src.error_message_templates import *
 
 
 class PermissionDeniedError(Exception):
@@ -163,11 +164,38 @@ class Ratslap:
                 return raw.split(", ")
 
     def print_error_message(self, e):
-        print(f"Something went wrong. Make sure you're able to run following command on terminal:\n"
-              f"{self.path} -p f3\n\n"
-              f"Original error message was:\n{e.args[0]}", file=sys.stderr)
-        if e.__class__.__name__ == "PermissionDeniedError":
-            print("\nYou may want to follow the instructions at https://gitlab.com/krayon/ratslap "
-                  "to solve the problem.", file=sys.stderr)
-        elif e.__class__.__name__ == "MouseIsOfflineError":
-            print("\nPlease plug in your Logitech G300s mouse before running the program.", file=sys.stderr)
+        error = Error(e, self.path)
+        print(error.get_full_error_message(), file=sys.stderr)
+
+
+class Error:
+    def __init__(self, e, path_to_ratslap):
+        self.e = e
+        self.path_to_ratslap = path_to_ratslap
+
+    def get_name(self):
+        error_name = self.e.__class__.__name__
+        return " ".join(re.findall(r"[A-Z][^A-Z]*", error_name)[:-1])
+
+    def get_full_error_message(self):
+        return full_error_message.format(self.get_general_message(),
+                                         self.get_original_error_message(),
+                                         self.get_details(False))
+
+    def get_general_message(self):
+        return general_error_message.format(self.path_to_ratslap)
+
+    def get_original_error_message(self):
+        return original_error_message.format(self.e.args[0])
+
+    def get_details(self, include_original_error_message=True):
+        if include_original_error_message:
+            error_message = self.get_original_error_message()
+            error_message += "\n"
+        else:
+            error_message = ""
+        if self.e.__class__.__name__ == "PermissionDeniedError":
+            error_message += permission_denied_message
+        elif self.e.__class__.__name__ == "MouseIsOfflineError":
+            error_message += mouse_is_offline_message
+        return error_message
