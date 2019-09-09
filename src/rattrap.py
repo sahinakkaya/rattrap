@@ -50,6 +50,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 ratslap_path = self.get_new_path(ratslap_path)
             except ratslap.MouseIsOfflineError:
                 skip_test_for_ratslap = True
+            except ratslap.PermissionDeniedError:
+                skip_test_for_ratslap = True
 
         self.ratslap = ratslap.Ratslap(ratslap_path, skip_test_for_ratslap)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
@@ -72,6 +74,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             except ratslap.NonValidPathError:
                 self.ratslap.path = self.get_new_path(self.ratslap.path)
                 result = function(*args, **kwargs)
+            except ratslap.PermissionDeniedError as e:
+                self.handle_permission_denied_error(e)
             except ratslap.UnknownRatslapError as e:
                 # Maybe it's because computers are fast
                 sleep(0.1)  # Let's wait a bit
@@ -255,6 +259,20 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     self.show_tray_message("Mouse disconnected")
                 else:
                     self.show_tray_message("Failed to find Logitech G300s")
+
+    def handle_permission_denied_error(self, e):
+        error = ratslap.Error(e, self.ratslap.path)
+        title = error.get_name()
+        text = error.get_general_message()
+        informative_text = "Would you like Rattrap to help you with this?"
+        details = error.get_details()
+        response = self.exec_message_box(title, text, icon_name="Warning", button_names=["Yes", "No"],
+                                         special_buttons={"DefaultButton": 1, "EscapeButton": 2},
+                                         informativeText=informative_text, detailedText=details)
+        if response == "Yes":
+            ...
+        else:
+            exit()
 
     def set_current_mode(self):
         current_mode_index = [i.isChecked() for i in self.radio_buttons].index(True) + 3
