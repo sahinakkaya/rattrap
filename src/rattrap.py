@@ -1,4 +1,5 @@
 import os
+import sys
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
@@ -31,6 +32,12 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.buttons.extend([getattr(self, f"g{str(i)}") for i in range(4, 10)])
         self.action_names = ["reset", "import", "export", "apply"]
 
+        # Enable widgets, set icons for them, create actions
+        self.setup_ui_design()
+
+        # Connect signals and slots
+        self.setup_ui_logic()
+
         skip_test_for_ratslap = False
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
@@ -52,12 +59,6 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         if not mouse_offline:
             self.set_current_mode()
             self.current_mode_is_set = True
-
-        # Enable widgets, set icons for them, create actions
-        self.setup_ui_design()
-
-        # Connect signals and slots
-        self.setup_ui_logic()
 
         self.thread.start()
 
@@ -84,7 +85,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def get_new_path(self, previous_path):
         text = f"The previous path to ratslap program: '{previous_path}' is unreachable. If you want to " \
             f"continue using Rattrap please specify the path to 'ratslap'"
-        QtWidgets.QMessageBox.information(self, "Unable to reach 'ratslap'", text, QtWidgets.QMessageBox.Ok)
+        self.exec_message_box("Unable to reach 'ratslap'", text)
         return self.get_ratslap_path()
 
     def setup_ui_design(self):
@@ -145,21 +146,21 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
     def on_reset(self):
         for i in range(3, 6):
-            msg_box = QtWidgets.QMessageBox
             title = f"Reset F{i}?"
             text = f"Do you want to reset profile F{i} to its defaults?"
-            response = msg_box.question(self, title, text,
-                                        msg_box.No | msg_box.NoToAll | msg_box.YesToAll | msg_box.Yes)
-            if response == msg_box.YesToAll:
+
+            response = self.exec_message_box(title, text, ["No", "NoToAll", "YesToAll", "Yes"], "Question",
+                                             special_buttons={"EscapeButton": 2, "DefaultButton": 4})
+            if response == "YesToAll":
                 self.ratslap.reset("all")
                 self.conn.drop_table("profiles")
                 self.set_current_mode()
                 break
-            elif response == msg_box.Yes:
+            elif response == "Yes":
                 self.ratslap.reset(i)
                 self.conn.delete_row("profiles", name=f"f{str(i)}")
                 self.set_current_mode()
-            elif response == msg_box.NoToAll:
+            elif response == "NoToAll":
                 break
 
     def on_import(self):
@@ -200,7 +201,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             if not first_try:
                 title = "Non valid path"
                 text = "The path you specified is not valid. Try again"
-                QtWidgets.QMessageBox.information(self, title, text, QtWidgets.QMessageBox.Ok)
+                self.exec_message_box(title, text)
             caption = "Select the path to the 'ratslap' program..."
             path, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption)
             if path:
@@ -232,8 +233,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             button = getattr(self, f"button_{name}")
             button.setEnabled(mouse_online)
 
-        mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox,
-                                                   "mouse_offline_message_box")  # type: QtWidgets.QMessageBox
+        mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox, "mouse_offline_message_box")
         if mouse_online:
             if not self.current_mode_is_set:
                 self.set_current_mode()
@@ -248,11 +248,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 if mouse_offline_message_box is not None:
                     mouse_offline_message_box.show()
                 else:
-                    QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
-                                          "Failed to find Logitech G300s",
-                                          text, QtWidgets.QMessageBox.Ok,
-                                          self,
-                                          objectName="mouse_offline_message_box").show()
+                    self.exec_message_box("Failed to find Logitech G300s",
+                                          text, ["Ok"], "Information", objectName="mouse_offline_message_box")
             else:
                 if self.current_mode_is_set:
                     self.show_tray_message("Mouse disconnected")
@@ -289,6 +286,35 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
 
     def show_tray_message(self, message, title="Rattrap"):
         self.tray_icon.showMessage(title, message, QIcon(self.get_path("images", "logo.png")), 1000)
+
+    def exec_message_box(self, title, text, button_names=None, icon_name=None,
+                         special_buttons=None, **kwargs):
+        msg_box = QtWidgets.QMessageBox(self, **kwargs)
+        if not button_names:
+            button_names = ["Ok"]
+
+        for button_name in button_names:
+            try:
+                msg_box.addButton(getattr(QtWidgets.QMessageBox, button_name))
+            except AttributeError as e:
+                print(e, file=sys.stderr)
+        if icon_name:
+            icon = getattr(QtWidgets.QMessageBox, icon_name)
+        else:
+            icon = QtWidgets.QMessageBox.Information
+        msg_box.setIcon(icon)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(text)
+        if special_buttons is not None:
+            for button_name, index in special_buttons.items():
+                method = getattr(msg_box, f"set{button_name}")
+                button = getattr(msg_box, button_names[index - 1])
+                method(button)
+
+        response = msg_box.exec()
+        for button_name in button_names:
+            if response == getattr(msg_box, button_name):
+                return button_name
 
     def closeEvent(self, e):
         e.ignore()
