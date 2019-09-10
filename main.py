@@ -13,12 +13,7 @@ if __name__ == '__main__':
     app_name = "RatTrap"
     script_dir = os.path.dirname(__file__)
     app = SingleQApplication(sys.argv, app_name)
-
-    try:
-        main_window = RattrapWindow(script_dir, app_name)
-    except (PermissionDeniedError, MouseIsOfflineError):
-        pass
-    else:
-        app.visibility_changed.connect(main_window.setVisible)
-        app.send_message(app.visibility)
-        sys.exit(app.exec_())
+    main_window = RattrapWindow(script_dir, app_name)
+    app.visibility_changed.connect(main_window.setVisible)
+    app.send_message(app.visibility)
+    sys.exit(app.exec_())

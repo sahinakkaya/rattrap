@@ -41,29 +41,28 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.setup_ui_logic()
 
         skip_test_for_ratslap = False
+        self.permission_granted = True
+        self.mouse_connected = True
         try:
             ratslap_path = self.conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
         except OperationalError:
             ratslap_path = self.get_ratslap_path()
         else:
             try:
-                ratslap.RatSlap(ratslap_path)
+                ratslap.RatSlap(ratslap_path, skip_test_for_ratslap)
             except ratslap.NonValidPathError:
                 ratslap_path = self.get_new_path(ratslap_path)
             except ratslap.MouseIsOfflineError:
-                skip_test_for_ratslap = True
+                self.mouse_connected = False
             except ratslap.PermissionDeniedError:
+                self.permission_granted = False
+            finally:
                 skip_test_for_ratslap = True
 
         self.ratslap = ratslap.RatSlap(ratslap_path, skip_test_for_ratslap)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
         self.mode1.setChecked(True)
-        mouse_offline = skip_test_for_ratslap
         self.current_mode_is_set = False
-        if not mouse_offline:
-            self.set_current_mode()
-            self.current_mode_is_set = True
-
         self.thread.start()
 
     def get_path(self, *p):
@@ -78,6 +77,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 result = function(*args, **kwargs)
             except ratslap.PermissionDeniedError as e:
                 self.handle_permission_denied_error(e)
+                result = function(*args, **kwargs)
+                self.permission_granted = True
             except ratslap.UnknownRatSlapError as e:
                 # Maybe it's because computers are fast
                 sleep(0.1)  # Let's wait a bit
@@ -91,7 +92,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def get_new_path(self, previous_path):
         text = f"The previous path to '{self.ratslap_name}' program: '{previous_path}' is unreachable. " \
             f"If you want to continue using {self.app_name} please specify the path to '{self.ratslap_name}'"
-        self.exec_message_box(f"Unable to reach '{self.ratslap_name}'", text)
+        self.exec_message_box(f"Unable to reach '{self.ratslap_name}'", text, icon_name="Warning")
         return self.get_ratslap_path()
 
     def setup_ui_design(self):
@@ -216,14 +217,18 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     ratslap.RatSlap(path)
                 except ratslap.NonValidPathError:
                     first_try = False
+                except (ratslap.MouseIsOfflineError,
+                        ratslap.PermissionDeniedError,
+                        ratslap.UnknownRatSlapError):
+                    path_valid = True
                 else:
                     path_valid = True
-                    self.conn.drop_table("file_paths")
-                    self.conn.create_table("file_paths", ["program_name", "path"])
-                    self.conn.insert_values("file_paths", **{"program_name": "ratslap", "path": path})
+
             else:
                 exit()
-
+        self.conn.drop_table("file_paths")
+        self.conn.create_table("file_paths", ["program_name", "path"])
+        self.conn.insert_values("file_paths", **{"program_name": "ratslap", "path": path})
         return path
 
     def connect_signals_and_slots_of_thread(self):
@@ -232,24 +237,33 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.thread.started.connect(self.usb_detector.work)
 
     def toggle_ui_state(self, mouse_online):
+        self.mouse_connected = mouse_online
+        mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox, "mouse_offline_message_box")
+        if mouse_online:
+            if mouse_offline_message_box is not None:
+                mouse_offline_message_box.hide()
+            if self.isVisible():
+                try:
+                    self.set_current_mode()
+                    self.permission_granted = True
+                    self.current_mode_is_set = True
+                except ratslap.PermissionDeniedError:
+                    self.permission_granted = False
+                except ratslap.MouseIsOfflineError:
+                    pass
+
         for radio_btn in self.radio_buttons:
             if not radio_btn.isChecked():
-                radio_btn.setEnabled(mouse_online)
+                radio_btn.setEnabled(mouse_online and self.permission_granted)
 
         for name in self.action_names:
             button = getattr(self, f"button_{name}")
-            button.setEnabled(mouse_online)
+            button.setEnabled(mouse_online and self.permission_granted)
 
-        mouse_offline_message_box = self.findChild(QtWidgets.QMessageBox, "mouse_offline_message_box")
-        if mouse_online:
-            if not self.current_mode_is_set:
-                self.set_current_mode()
-                self.current_mode_is_set = True
-            if mouse_offline_message_box is not None:
-                mouse_offline_message_box.hide()
-            if self.isHidden():
-                self.show_tray_message("Mouse connected")
-        else:
+        if mouse_online and self.isHidden():
+            self.show_tray_message("Mouse connected")
+
+        elif not mouse_online:
             if self.isVisible():
                 text = f"Please plug in your Logitech G300s mouse to continue using {self.app_name}"
                 if mouse_offline_message_box is not None:
@@ -264,18 +278,33 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     self.show_tray_message("Failed to find Logitech G300s")
 
     def handle_permission_denied_error(self, e):
+        self.permission_granted = False
         error = ratslap.Error(e, self.ratslap.path)
         title = error.get_name()
-        text = error.get_general_message()
+        text = "You do not have write access to the mouse."
         informative_text = f"Would you like {self.app_name} to help you with this?"
-        details = error.get_details()
+        details = error.get_full_error_message()
         response = self.exec_message_box(title, text, icon_name="Warning", button_names=["Yes", "No"],
                                          special_buttons={"DefaultButton": 1, "EscapeButton": 2},
                                          informativeText=informative_text, detailedText=details)
         if response == "Yes":
-            ...
-        else:
-            exit()
+            file_name = "10-ratslap.rules"
+            self.create_udev_rule_for_ratslap(file_name)
+            self.prompt_user_to_move_the_file(file_name)
+            self.exec_message_box("Replug your mouse", "If you have done with moving the file and reloading"
+                                                       " the rules, plug out your mouse and replug it for "
+                                                       "changes to take the effect.")
+
+    def prompt_user_to_move_the_file(self, file_name):
+        title = "Move the file and reload the rules"
+        text = f'A file named "{file_name}" created under {self.path}\n\n' \
+            f'Move it to the path: /etc/udev/rules.d/ \n' \
+            f'and then reload udevadm rules.'
+        informative_text = "If you don't know how to do it, press Show Details button."
+        details = f"Run these 2 commands on terminal and then press Ok\n" \
+            f"sudo mv {self.get_path(file_name)} /etc/udev/rules.d\n" \
+            f"sudo udevadm control --reload-rules"
+        self.exec_message_box(title, text, informativeText=informative_text, detailedText=details)
 
     def set_current_mode(self):
         current_mode_index = [i.isChecked() for i in self.radio_buttons].index(True) + 3
@@ -338,6 +367,20 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         for button_name in button_names:
             if response == getattr(msg_box, button_name):
                 return button_name
+
+    def create_udev_rule_for_ratslap(self, file_name):
+        with open(self.get_path(file_name), "w") as f:
+            rule = 'DRIVER=="usb", ' \
+                   'ATTR{idProduct}=="c246", ' \
+                   'ATTR{idVendor}=="046d", ' \
+                   'ATTR{product}=="G300s Optical Gaming Mouse", ' \
+                   'MODE="0666", ' \
+                   'GROUP="%s"' % (os.getenv("USER"))
+            f.write(rule)
+
+    def show(self):
+        super().show()
+        self.toggle_ui_state(self.mouse_connected)
 
     def closeEvent(self, e):
         e.ignore()
