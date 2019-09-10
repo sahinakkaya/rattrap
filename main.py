@@ -10,12 +10,12 @@ from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 # FIXME: Enable ok button in command editor when entered "assign manually" mode
 
 if __name__ == '__main__':
-    app_name = "Rattrap"
+    app_name = "RatTrap"
     script_dir = os.path.dirname(__file__)
     app = SingleQApplication(sys.argv, app_name)
 
     try:
-        main_window = RattrapWindow(script_dir)
+        main_window = RattrapWindow(script_dir, app_name)
     except (PermissionDeniedError, MouseIsOfflineError):
         pass
     else:

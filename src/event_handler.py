@@ -1,6 +1,6 @@
 import subprocess
 import re
-from src.ratslap import Ratslap
+from src.ratslap import RatSlap
 from src.db_helper import DBHelper
 
 
@@ -209,6 +209,6 @@ if __name__ == '__main__':
     with DBHelper("settings.db") as conn:
         path = conn.select("file_paths", ("path",), program_name="ratslap").fetchone()[0]
 
-    event_list = EventList(Ratslap(path).parse_mode(3))
+    event_list = EventList(RatSlap(path).parse_mode(3))
     event_list.get_events()
     print(event_list.create_shortcut_from_events())

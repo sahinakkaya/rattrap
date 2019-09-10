@@ -14,10 +14,12 @@ from src.usb_detector import USBDetector
 
 
 class RattrapWindow(QMainWindow, Ui_Rattrap):
-    def __init__(self, path):
+    def __init__(self, path, app_name):
         super().__init__()
         self.setupUi(self)
         self.path = path
+        self.app_name = app_name
+        self.ratslap_name = ratslap.RatSlap.name()
         self.current_mode_name = None
         self.conn = DBHelper(self.get_path("settings.db"))
         self.tray_icon = QtWidgets.QSystemTrayIcon(self)
@@ -45,7 +47,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             ratslap_path = self.get_ratslap_path()
         else:
             try:
-                ratslap.Ratslap(ratslap_path)
+                ratslap.RatSlap(ratslap_path)
             except ratslap.NonValidPathError:
                 ratslap_path = self.get_new_path(ratslap_path)
             except ratslap.MouseIsOfflineError:
@@ -53,7 +55,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             except ratslap.PermissionDeniedError:
                 skip_test_for_ratslap = True
 
-        self.ratslap = ratslap.Ratslap(ratslap_path, skip_test_for_ratslap)
+        self.ratslap = ratslap.RatSlap(ratslap_path, skip_test_for_ratslap)
         setattr(self.ratslap, 'run', self.catch_exceptions(getattr(self.ratslap, 'run')))
         self.mode1.setChecked(True)
         mouse_offline = skip_test_for_ratslap
@@ -76,7 +78,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 result = function(*args, **kwargs)
             except ratslap.PermissionDeniedError as e:
                 self.handle_permission_denied_error(e)
-            except ratslap.UnknownRatslapError as e:
+            except ratslap.UnknownRatSlapError as e:
                 # Maybe it's because computers are fast
                 sleep(0.1)  # Let's wait a bit
                 result = function(*args, **kwargs)
@@ -87,12 +89,13 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         return wrapper
 
     def get_new_path(self, previous_path):
-        text = f"The previous path to ratslap program: '{previous_path}' is unreachable. If you want to " \
-            f"continue using Rattrap please specify the path to 'ratslap'"
-        self.exec_message_box("Unable to reach 'ratslap'", text)
+        text = f"The previous path to '{self.ratslap_name}' program: '{previous_path}' is unreachable. " \
+            f"If you want to continue using {self.app_name} please specify the path to '{self.ratslap_name}'"
+        self.exec_message_box(f"Unable to reach '{self.ratslap_name}'", text)
         return self.get_ratslap_path()
 
     def setup_ui_design(self):
+        self.setWindowTitle(self.app_name)
         self.resize(303, 477)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
@@ -100,9 +103,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             widget.setEnabled(True)
 
         self.set_icons_for_widgets()
-        actions = {"show": "Open Rattrap",
+        actions = {"show": f"Open {self.app_name}",
                    "hide": "Minimize to tray",
-                   "quit": "Quit Rattrap"}
+                   "quit": f"Quit {self.app_name}"}
         self.add_actions_to_tray(actions)
         self.tray_icon.show()
 
@@ -206,11 +209,11 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 title = "Non valid path"
                 text = "The path you specified is not valid. Try again"
                 self.exec_message_box(title, text)
-            caption = "Select the path to the 'ratslap' program..."
+            caption = f"Select the path to the '{self.ratslap_name}' program..."
             path, _ = QtWidgets.QFileDialog.getOpenFileName(self, caption)
             if path:
                 try:
-                    ratslap.Ratslap(path)
+                    ratslap.RatSlap(path)
                 except ratslap.NonValidPathError:
                     first_try = False
                 else:
@@ -248,7 +251,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 self.show_tray_message("Mouse connected")
         else:
             if self.isVisible():
-                text = "Please plug in your Logitech G300s mouse to continue using Rattrap"
+                text = f"Please plug in your Logitech G300s mouse to continue using {self.app_name}"
                 if mouse_offline_message_box is not None:
                     mouse_offline_message_box.show()
                 else:
@@ -264,7 +267,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         error = ratslap.Error(e, self.ratslap.path)
         title = error.get_name()
         text = error.get_general_message()
-        informative_text = "Would you like Rattrap to help you with this?"
+        informative_text = f"Would you like {self.app_name} to help you with this?"
         details = error.get_details()
         response = self.exec_message_box(title, text, icon_name="Warning", button_names=["Yes", "No"],
                                          special_buttons={"DefaultButton": 1, "EscapeButton": 2},
@@ -302,7 +305,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             self.conn.insert_values("profiles", **profile)
             return self.get_mode(mode)
 
-    def show_tray_message(self, message, title="Rattrap"):
+    def show_tray_message(self, message, title=None):
+        if title is None:
+            title = self.app_name
         self.tray_icon.showMessage(title, message, QIcon(self.get_path("images", "logo.png")), 1000)
 
     def exec_message_box(self, title, text, button_names=None, icon_name=None,
@@ -337,7 +342,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def closeEvent(self, e):
         e.ignore()
         self.hide()
-        self.show_tray_message("Rattrap was minimized to tray")
+        self.show_tray_message(f"{self.app_name} was minimized to tray")
 
     def quit(self):
         self.conn.close()

@@ -17,11 +17,11 @@ class NonValidPathError(Exception):
     pass
 
 
-class UnknownRatslapError(Exception):
+class UnknownRatSlapError(Exception):
     pass
 
 
-class Ratslap:
+class RatSlap:
     defaults = OrderedDict({
         "f3": {'name': 'f3', 'color': 'cyan', 'rate': '500', 'dpi1': '500', 'dpi2': '(DEF) 1000',
                'dpi3': '1500', 'dpi4': '2500', 'dpi_shift': 'NOT SET', 'left': 'Button1', 'right': 'Button2',
@@ -66,7 +66,7 @@ class Ratslap:
         elif mouse_is_offline:
             raise MouseIsOfflineError(mouse_is_offline.group(0))
         else:
-            raise UnknownRatslapError(stderr)
+            raise UnknownRatSlapError(stderr)
 
     def run(self, arg, val=None, pretty=False):
         if self.path_is_valid():
@@ -166,6 +166,10 @@ class Ratslap:
     def print_error_message(self, e):
         error = Error(e, self.path)
         print(error.get_full_error_message(), file=sys.stderr)
+
+    @classmethod
+    def name(cls):
+        return cls.__name__
 
 
 class Error:

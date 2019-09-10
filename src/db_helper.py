@@ -1,5 +1,5 @@
 import sqlite3 as sql
-from src.ratslap import Ratslap
+from src.ratslap import RatSlap
 
 
 class OperationalError(sql.OperationalError):
@@ -14,7 +14,7 @@ class DBHelper:
         self.setup()
 
     def setup(self):
-        defaults = Ratslap.defaults
+        defaults = RatSlap.defaults
         self.drop_table("defaults")
         self.create_table("defaults", defaults["f3"])
         for mode in defaults.values():
