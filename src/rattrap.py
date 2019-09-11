@@ -301,8 +301,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             f'Move it to the path: /etc/udev/rules.d/ \n' \
             f'and then reload udevadm rules.'
         informative_text = "If you don't know how to do it, press Show Details button."
-        details = f"Run these 2 commands on terminal and then press Ok\n" \
-            f"sudo mv {self.get_path(file_name)} /etc/udev/rules.d\n" \
+        details = f"Run the command below on terminal and then press Ok\n\n" \
+            f"sudo mv {self.get_path(file_name)} /etc/udev/rules.d && " \
             f"sudo udevadm control --reload-rules"
         self.exec_message_box(title, text, informativeText=informative_text, detailedText=details)
 
