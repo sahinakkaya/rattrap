@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI/rattrap.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -252,10 +252,23 @@ class Ui_Rattrap(object):
         self.menubar = QtWidgets.QMenuBar(Rattrap)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 313, 20))
         self.menubar.setObjectName("menubar")
+        self.menuSettings = QtWidgets.QMenu(self.menubar)
+        self.menuSettings.setObjectName("menuSettings")
         Rattrap.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(Rattrap)
         self.statusbar.setObjectName("statusbar")
         Rattrap.setStatusBar(self.statusbar)
+        self.action_minimize_to_tray = QtWidgets.QAction(Rattrap)
+        self.action_minimize_to_tray.setCheckable(True)
+        self.action_minimize_to_tray.setChecked(True)
+        self.action_minimize_to_tray.setObjectName("action_minimize_to_tray")
+        self.action_autostart = QtWidgets.QAction(Rattrap)
+        self.action_autostart.setCheckable(True)
+        self.action_autostart.setChecked(False)
+        self.action_autostart.setObjectName("action_autostart")
+        self.menuSettings.addAction(self.action_minimize_to_tray)
+        self.menuSettings.addAction(self.action_autostart)
+        self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(Rattrap)
         QtCore.QMetaObject.connectSlotsByName(Rattrap)
@@ -320,4 +333,7 @@ class Ui_Rattrap(object):
         self.button_reset.setStatusTip(_translate("Rattrap", "Reset to defaults"))
         self.button_export.setStatusTip(_translate("Rattrap", "Export configuration"))
         self.button_import.setStatusTip(_translate("Rattrap", "Import configuration"))
+        self.menuSettings.setTitle(_translate("Rattrap", "Settings"))
+        self.action_minimize_to_tray.setText(_translate("Rattrap", "Minimize to tray when closing"))
+        self.action_autostart.setText(_translate("Rattrap", "Launch on startup"))
 

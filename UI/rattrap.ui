@@ -577,8 +577,38 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="action_minimize_to_tray"/>
+    <addaction name="action_autostart"/>
+   </widget>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="action_minimize_to_tray">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Minimize to tray when closing</string>
+   </property>
+  </action>
+  <action name="action_autostart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Launch on startup</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

@@ -3,7 +3,7 @@ import sys
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QThread, Qt
+from PyQt5.QtCore import QThread, Qt, QSettings
 from json import dump, loads
 from time import sleep
 import src.ratslap as ratslap
@@ -19,6 +19,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.setupUi(self)
         self.path = path
         self.app_name = app_name
+        self.settings = QSettings("Asocia", self.app_name)
         self.ratslap_name = ratslap.RatSlap.name()
         self.current_mode_name = None
         self.conn = DBHelper(self.get_path("settings.db"))
@@ -99,7 +100,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.setWindowTitle(self.app_name)
         self.resize(303, 477)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
-
+        auto_start = self.settings.value("auto_start_on_boot", False, type=bool)
+        self.action_autostart.setChecked(auto_start)
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
 
@@ -114,6 +116,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.bind_functions_to_buttons()
         self.connect_signals_and_slots_of_thread()
         self.bind_functions_to_actions()
+        self.action_autostart.toggled.connect(self.create_or_remove_autostart_file)
+
 
     def set_icons_for_widgets(self):
         for action_name in self.action_names:
@@ -378,6 +382,43 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                    'GROUP="%s"' % (os.getenv("USER"))
             f.write(rule)
 
+    def create_or_remove_autostart_file(self):
+        path = self.get_path(os.path.expanduser("~"), ".config/autostart/")
+        file_name = f"{self.app_name}.desktop"
+        if self.action_autostart.isChecked():
+            if os.path.exists(path):
+                response = self.exec_message_box("Run in background?",
+                                                 f"Do you want {self.app_name} to run in background when "
+                                                 f"auto-started?",
+                                                 button_names=["Yes", "No"],
+                                                 special_buttons={"DefaultButton": 1, "EscapeButton": 2})
+
+                run_in_background_option = "--run-in-background" if response == "Yes" else ""
+                with open(self.get_path(path, file_name), "w") as f:
+                    f.write(f"[Desktop Entry]\n"
+                            f"Type=Application\n"
+                            f"Exec={sys.executable} {self.get_path('main.py')} {run_in_background_option}\n"
+                            f"Hidden=false\n"
+                            f"NoDisplay=false\n"
+                            f"X-GNOME-Autostart-enabled=true\n"
+                            f"Name[en]={self.app_name}\n"
+                            f"Name={self.app_name}\n"
+                            f"Comment[en]=Autostart {self.app_name} on startup\n"
+                            f"Comment=Autostart {self.app_name} on startup\n")
+            else:
+
+                self.exec_message_box("Sorry", "We do not know how to perform this operation on your system.",
+                                      icon_name="Information")
+                self.action_autostart.setChecked(False)
+        else:
+            if os.path.exists(self.get_path(path, file_name)):
+                os.remove(self.get_path(path, file_name))
+
+    def save_settings(self):
+        auto_start = self.action_autostart.isChecked()
+        self.settings.setValue("auto_start_on_boot", auto_start)
+        self.settings.sync()
+
     def show(self):
         super().show()
         self.toggle_ui_state(self.mouse_connected)
@@ -388,5 +429,6 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.show_tray_message(f"{self.app_name} was minimized to tray")
 
     def quit(self):
+        self.save_settings()
         self.conn.close()
         QtWidgets.qApp.quit()
