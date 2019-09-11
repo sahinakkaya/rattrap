@@ -83,9 +83,19 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             except ratslap.UnknownRatSlapError as e:
                 # Maybe it's because computers are fast
                 sleep(0.1)  # Let's wait a bit
-                result = function(*args, **kwargs)
-                print(f"An error was occurred but it's gone after 0.1 seconds; "
+                try:
+                    result = function(*args, **kwargs)
+                except Exception as e:
+                    text = f"Error message was:\n{str(e)}\n{self.app_name} will now close."
+                    self.exec_message_box("An error occured", text, icon_name="Critical")
+                    self.quit()
+                else:
+                    print(f"An error was occurred but it's gone after 0.1 seconds; "
                       f"time heals everything :) \nIf you are curious, the error was:\n{e}")
+            except Exception as e:
+                text = f"Error message was:\n{str(e)}\n{self.app_name} will now close."
+                self.exec_message_box("An error occured", text, icon_name="Critical")
+                self.quit()
             return result
 
         return wrapper
