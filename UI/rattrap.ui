@@ -583,6 +583,7 @@
     </property>
     <addaction name="action_minimize_to_tray"/>
     <addaction name="action_autostart"/>
+    <addaction name="action_create_desktop_shortcut"/>
    </widget>
    <addaction name="menuSettings"/>
   </widget>
@@ -607,6 +608,11 @@
    </property>
    <property name="text">
     <string>Launch on startup</string>
+   </property>
+  </action>
+  <action name="action_create_desktop_shortcut">
+   <property name="text">
+    <string>Create shortcut on desktop</string>
    </property>
   </action>
  </widget>

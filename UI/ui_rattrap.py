@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI/rattrap.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -266,8 +266,11 @@ class Ui_Rattrap(object):
         self.action_autostart.setCheckable(True)
         self.action_autostart.setChecked(False)
         self.action_autostart.setObjectName("action_autostart")
+        self.action_create_desktop_shortcut = QtWidgets.QAction(Rattrap)
+        self.action_create_desktop_shortcut.setObjectName("action_create_desktop_shortcut")
         self.menuSettings.addAction(self.action_minimize_to_tray)
         self.menuSettings.addAction(self.action_autostart)
+        self.menuSettings.addAction(self.action_create_desktop_shortcut)
         self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(Rattrap)
@@ -336,4 +339,5 @@ class Ui_Rattrap(object):
         self.menuSettings.setTitle(_translate("Rattrap", "Settings"))
         self.action_minimize_to_tray.setText(_translate("Rattrap", "Minimize to tray on close"))
         self.action_autostart.setText(_translate("Rattrap", "Launch on startup"))
+        self.action_create_desktop_shortcut.setText(_translate("Rattrap", "Create shortcut on desktop"))
 

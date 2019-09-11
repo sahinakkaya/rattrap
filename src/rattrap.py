@@ -103,7 +103,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         minimize_to_tray = self.settings.value("minimize_to_tray_when_closing", True, type=bool)
         self.action_minimize_to_tray.setChecked(minimize_to_tray)
         auto_start = self.settings.value("auto_start_on_boot", False, type=bool)
-        self.action_autostart.setChecked(auto_start)
+        auto_start_script_exists = os.path.exists(os.path.join(os.path.expanduser("~"),
+                                                               f".config/autostart/{self.app_name}.desktop"))
+        self.action_autostart.setChecked(auto_start and auto_start_script_exists)
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
             widget.setEnabled(True)
 
@@ -119,7 +121,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.connect_signals_and_slots_of_thread()
         self.bind_functions_to_actions()
         self.action_autostart.toggled.connect(self.create_or_remove_autostart_file)
-
+        self.action_create_desktop_shortcut.triggered.connect(self.create_desktop_shortcut)
 
     def set_icons_for_widgets(self):
         for action_name in self.action_names:
@@ -389,24 +391,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         file_name = f"{self.app_name}.desktop"
         if self.action_autostart.isChecked():
             if os.path.exists(path):
-                response = self.exec_message_box("Run in background?",
-                                                 f"Do you want {self.app_name} to run in background when "
-                                                 f"auto-started?",
-                                                 button_names=["Yes", "No"],
-                                                 special_buttons={"DefaultButton": 1, "EscapeButton": 2})
-
-                run_in_background_option = "--run-in-background" if response == "Yes" else ""
-                with open(self.get_path(path, file_name), "w") as f:
-                    f.write(f"[Desktop Entry]\n"
-                            f"Type=Application\n"
-                            f"Exec={sys.executable} {self.get_path('main.py')} {run_in_background_option}\n"
-                            f"Hidden=false\n"
-                            f"NoDisplay=false\n"
-                            f"X-GNOME-Autostart-enabled=true\n"
-                            f"Name[en]={self.app_name}\n"
-                            f"Name={self.app_name}\n"
-                            f"Comment[en]=Autostart {self.app_name} on startup\n"
-                            f"Comment=Autostart {self.app_name} on startup\n")
+                option = "--run-in-background"
+                self.create_dot_desktop_file(file_name, path, f"Autostart {self.app_name} on startup", option)
             else:
 
                 self.exec_message_box("Sorry", "We do not know how to perform this operation on your system.",
@@ -416,9 +402,36 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             if os.path.exists(self.get_path(path, file_name)):
                 os.remove(self.get_path(path, file_name))
 
+    def create_desktop_shortcut(self):
+        path = self.get_path(os.path.expanduser("~"), "Desktop")
+        file_name = f"{self.app_name}.desktop"
+        if os.path.exists(os.path.join(path, file_name)):
+            self.exec_message_box("Info", "Desktop shortcut already exists")
+        else:
+            self.create_dot_desktop_file(file_name, path, f"Launch {self.app_name}")
+            self.exec_message_box("Info", f"A file named {file_name} created on your desktop. "
+                                          f"Right click on it and follow\n"
+                                          f"Properties->Permissions->Allow executing file as program")
+
+    def create_dot_desktop_file(self, file_name, path, comment, run_in_background=""):
+        with open(os.path.join(path, file_name), "w") as f:
+            f.write(f"[Desktop Entry]\n"
+                    f"Version=1.0\n"
+                    f"Type=Application\n"
+                    f"Exec={sys.executable} {self.get_path('main.py')} {run_in_background}\n"
+                    f"Hidden=false\n"
+                    f"NoDisplay=false\n"
+                    f"X-GNOME-Autostart-enabled=true\n"
+                    f"Name[en]={self.app_name}\n"
+                    f"Name={self.app_name}\n"
+                    f"Comment[en]={comment}\n"
+                    f"Comment={comment}\n"
+                    f"Icon={self.get_path('images', 'logo.png')}\n")
+
     def save_settings(self):
         minimize_to_tray = self.action_minimize_to_tray.isChecked()
         self.settings.setValue("minimize_to_tray_when_closing", minimize_to_tray)
+
         auto_start = self.action_autostart.isChecked()
         self.settings.setValue("auto_start_on_boot", auto_start)
         self.settings.sync()
