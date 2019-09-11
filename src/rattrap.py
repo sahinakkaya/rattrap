@@ -91,7 +91,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                     self.quit()
                 else:
                     print(f"An error was occurred but it's gone after 0.1 seconds; "
-                      f"time heals everything :) \nIf you are curious, the error was:\n{e}")
+                          f"time heals everything :) \nIf you are curious, the error was:\n{e}")
             except Exception as e:
                 text = f"Error message was:\n{str(e)}\n{self.app_name} will now close."
                 self.exec_message_box("An error occured", text, icon_name="Critical")
@@ -190,7 +190,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 break
 
     def on_import(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file", self.path)
+
         if path:
             with open(path) as f:
                 for i in range(3, 6):
