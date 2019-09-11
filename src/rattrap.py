@@ -190,8 +190,9 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 break
 
     def on_import(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file", self.path)
-
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import from file", self.path,
+                                                        f"All files (*);;{self.app_name} files (*.rat)",
+                                                        f"{self.app_name} files (*.rat)")
         if path:
             with open(path) as f:
                 for i in range(3, 6):
