@@ -334,6 +334,6 @@ class Ui_Rattrap(object):
         self.button_export.setStatusTip(_translate("Rattrap", "Export configuration"))
         self.button_import.setStatusTip(_translate("Rattrap", "Import configuration"))
         self.menuSettings.setTitle(_translate("Rattrap", "Settings"))
-        self.action_minimize_to_tray.setText(_translate("Rattrap", "Minimize to tray when closing"))
+        self.action_minimize_to_tray.setText(_translate("Rattrap", "Minimize to tray on close"))
         self.action_autostart.setText(_translate("Rattrap", "Launch on startup"))
 

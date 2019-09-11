@@ -595,7 +595,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Minimize to tray when closing</string>
+    <string>Minimize to tray on close</string>
    </property>
   </action>
   <action name="action_autostart">

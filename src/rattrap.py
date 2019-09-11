@@ -100,6 +100,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.setWindowTitle(self.app_name)
         self.resize(303, 477)
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
+        minimize_to_tray = self.settings.value("minimize_to_tray_when_closing", True, type=bool)
+        self.action_minimize_to_tray.setChecked(minimize_to_tray)
         auto_start = self.settings.value("auto_start_on_boot", False, type=bool)
         self.action_autostart.setChecked(auto_start)
         for widget in self.buttons + self.radio_buttons + [self.button_apply]:
@@ -415,6 +417,8 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                 os.remove(self.get_path(path, file_name))
 
     def save_settings(self):
+        minimize_to_tray = self.action_minimize_to_tray.isChecked()
+        self.settings.setValue("minimize_to_tray_when_closing", minimize_to_tray)
         auto_start = self.action_autostart.isChecked()
         self.settings.setValue("auto_start_on_boot", auto_start)
         self.settings.sync()
@@ -424,9 +428,12 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
         self.toggle_ui_state(self.mouse_connected)
 
     def closeEvent(self, e):
-        e.ignore()
-        self.hide()
-        self.show_tray_message(f"{self.app_name} was minimized to tray")
+        if not self.action_minimize_to_tray.isChecked():
+            self.quit()
+        else:
+            e.ignore()
+            self.hide()
+            self.show_tray_message(f"{self.app_name} was minimized to tray")
 
     def quit(self):
         self.save_settings()
