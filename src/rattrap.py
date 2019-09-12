@@ -94,7 +94,7 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
                           f"time heals everything :) \nIf you are curious, the error was:\n{e}")
             except Exception as e:
                 text = f"Error message was:\n{str(e)}\n{self.app_name} will now close."
-                self.exec_message_box("An error occured", text, icon_name="Critical")
+                self.exec_message_box("An error occurred", text, icon_name="Critical")
                 self.quit()
             return result
 
