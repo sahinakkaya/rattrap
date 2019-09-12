@@ -2,7 +2,6 @@ import sys
 import os
 from src.single_qapplication import SingleQApplication
 from src.rattrap import RattrapWindow
-from src.ratslap import PermissionDeniedError, MouseIsOfflineError
 
 # TODO: Add functionality to manually set shortcuts
 # TODO: Make color selection more visual with actual colors
