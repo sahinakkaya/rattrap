@@ -421,9 +421,10 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
             self.exec_message_box("Info", "Desktop shortcut already exists")
         else:
             self.create_dot_desktop_file(file_name, path, f"Launch {self.app_name}")
-            self.exec_message_box("Info", f"A file named {file_name} created on your desktop. "
-                                          f"Right click on it and follow\n"
-                                          f"Properties->Permissions->Allow executing file as program")
+            self.exec_message_box("Info",
+                                  f"A file named {file_name} created on your desktop. "
+                                  f"Right click on it and follow\n"
+                                  f"Properties->Permissions->Allow executing file as program")
 
     def create_dot_desktop_file(self, file_name, path, comment, run_in_background=""):
         with open(os.path.join(path, file_name), "w") as f:
@@ -451,6 +452,12 @@ class RattrapWindow(QMainWindow, Ui_Rattrap):
     def show(self):
         super().show()
         self.toggle_ui_state(self.mouse_connected)
+
+    def _set_visible(self, visible):
+        if visible:
+            self.show()
+        else:
+            super().setVisible(False)
 
     def closeEvent(self, e):
         if not self.action_minimize_to_tray.isChecked():

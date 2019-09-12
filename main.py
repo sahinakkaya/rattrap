@@ -13,6 +13,6 @@ if __name__ == '__main__':
     script_dir = os.path.dirname(__file__)
     app = SingleQApplication(sys.argv, app_name)
     main_window = RattrapWindow(script_dir, app_name)
-    app.visibility_changed.connect(main_window.setVisible)
+    app.visibility_changed.connect(main_window._set_visible)
     app.send_message(app.visibility)
     sys.exit(app.exec_())
