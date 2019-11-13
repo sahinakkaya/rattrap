@@ -1,3 +1,4 @@
+import os
 import subprocess
 import re
 from src.ratslap import RatSlap
@@ -10,6 +11,11 @@ class MetaKeyError(Exception):
 
 class UndefinedSymbolError(Exception):
     pass
+
+
+def get_shell_script(file_name):
+    script_dir = os.path.dirname(__file__)
+    return os.path.join(script_dir, "..", "shell_scripts", file_name)
 
 
 class Shortcut(str):
@@ -132,7 +138,7 @@ class Event:
 
     def find_keymap(self):
         keymap = filter(lambda x: "NoSymbol" not in x,
-                        subprocess.run(["./shell_scripts/find_keymap.sh", str(self.keycode)],
+                        subprocess.run([get_shell_script("find_keymap.sh"), str(self.keycode)],
                                        capture_output=True).stdout.decode("utf-8").strip().split())
         return [key for key in keymap if key not in self.exclude_list]
 
@@ -160,7 +166,7 @@ class EventList(list):
             super(EventList, self).append(event)
 
     def get_events(self, geometry=""):
-        process = subprocess.run(["./shell_scripts/xev_parser.sh", geometry], capture_output=True)
+        process = subprocess.run([get_shell_script("xev_parser.sh"), geometry], capture_output=True)
         event_table = map(str.split, (process.stdout.decode("utf-8").splitlines()))
         for row in event_table:
             try:
