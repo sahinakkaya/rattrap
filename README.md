@@ -31,5 +31,6 @@ python3 main.py
 The UI is easy to understand. You just need to know when you click on "Capture shortcut" button, a window will open and wait for you to perform some operation. For example, if you want to assign Ctrl+X to some button, just press Ctrl+X when that window comes and it will automatically close. Then press OK and click Apply to apply all the changes.
 
 ![ScreenShot](https://raw.github.com/Asocia/rattrap/master/images/screenshot.png)
+<br>
 ![ScreenShot](https://raw.github.com/Asocia/rattrap/master/images/screenshot_command_editor.png)
 
